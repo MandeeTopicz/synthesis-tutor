@@ -16,8 +16,8 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
-      style={{ backgroundColor: "#F8FAFC", minWidth: 768 }}
+      className="flex flex-col overflow-hidden"
+      style={{ backgroundColor: "#F8FAFC", minWidth: 768, height: "100vh" }}
     >
       <header
         className="flex-shrink-0 flex items-center justify-between px-4 border-b border-slate-200 bg-white"
@@ -52,7 +52,10 @@ export default function App() {
           </div>
         </main>
       ) : (
-        <main className="flex-1 flex min-h-0" style={{ minHeight: 0 }}>
+        <main
+          className="flex flex-1 min-h-0 overflow-hidden"
+          style={{ height: "calc(100vh - 56px)" }}
+        >
           <LessonEngine
             onPhaseChange={handlePhaseChange}
             onQuizComplete={handleQuizComplete}

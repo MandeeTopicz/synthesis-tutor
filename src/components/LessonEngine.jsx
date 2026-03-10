@@ -7,10 +7,18 @@ import CheckQuiz from "./CheckQuiz.jsx";
 
 const scriptById = Object.fromEntries(lessonScript.map((n) => [n.id, n]));
 
+const firstNode = lessonScript[0];
 const initialState = {
   currentNodeId: "node_01",
   phase: "explore",
-  messages: [],
+  messages: [
+    {
+      id: "msg-node_01-init",
+      sender: "tutor",
+      text: firstNode.tutorMessage,
+      emotion: firstNode.tutorEmotion,
+    },
+  ],
   attemptCount: 0,
   workspacePieces: [],
   workspaceFills: false,
@@ -129,18 +137,6 @@ export default function LessonEngine({ onPhaseChange, onQuizComplete }) {
     onPhaseChange?.(state.phase);
   }, [state.phase, onPhaseChange]);
 
-  useEffect(() => {
-    if ((state.phase === "explore" || state.phase === "learn") && state.currentNodeId && state.messages.length === 0) {
-      const node = scriptById[state.currentNodeId];
-      if (node?.tutorMessage) {
-        dispatch({
-          type: "ADD_MESSAGE",
-          payload: { id: `msg-${state.currentNodeId}`, sender: "tutor", text: node.tutorMessage, emotion: node.tutorEmotion },
-        });
-      }
-    }
-  }, [state.currentNodeId, state.phase, state.messages.length]);
-
   const handleAnswer = useCallback(
     async (answer) => {
       if (!currentNode) return;
@@ -213,7 +209,7 @@ export default function LessonEngine({ onPhaseChange, onQuizComplete }) {
 
   return (
     <>
-      <div className="flex-shrink-0 w-[35%] min-w-[320px] flex flex-col overflow-hidden border-r border-slate-200">
+      <div className="flex-shrink-0 w-[35%] min-w-[320px] h-full flex flex-col overflow-hidden border-r border-slate-200">
         <TutorChat
           messages={messages}
           onStudentAnswer={handleAnswer}
@@ -221,7 +217,7 @@ export default function LessonEngine({ onPhaseChange, onQuizComplete }) {
           isLoading={state.isLoadingHint}
         />
       </div>
-      <div className="flex-1 min-w-[320px] min-h-0 flex flex-col overflow-hidden relative">
+      <div className="flex-1 min-w-[320px] min-h-0 h-full flex flex-col overflow-hidden relative">
         <FractionWorkspace
           onPiecesPlaced={handlePiecesPlaced}
           highlightPiece={state.highlightPiece}

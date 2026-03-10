@@ -28,7 +28,10 @@ export default function TutorChat({
   const style = emotionStyles[emotion] ?? emotionStyles.happy;
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-0" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div
+      className="flex flex-col h-full overflow-hidden bg-white"
+      style={{ fontFamily: "'Inter', sans-serif", display: "flex", flexDirection: "column" }}
+    >
       {/* Tutor avatar */}
       <div className="flex-shrink-0 flex items-center gap-2 p-3 border-b border-slate-100">
         <div
@@ -70,11 +73,11 @@ export default function TutorChat({
         </span>
       </div>
 
-      {/* Message list */}
+      {/* Message list — flex: 1 + min-height: 0 so it scrolls inside the panel */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
-        {messages.map((msg) => (
+        {messages.map((msg, index) => (
           <div
-            key={msg.id}
+            key={`msg-${msg.id}-${index}`}
             className={`flex ${msg.sender === "student" ? "justify-end" : "justify-start"}`}
           >
             <div
@@ -100,7 +103,7 @@ export default function TutorChat({
         )}
       </div>
 
-      {/* Input area */}
+      {/* Input area — flex-shrink: 0 so it stays at bottom */}
       <div className="flex-shrink-0 p-3 border-t border-slate-100">
         {currentNode?.expectsAction === "free_explore" && (
           <button
