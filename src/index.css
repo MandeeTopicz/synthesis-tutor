@@ -16,3 +16,21 @@
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
+
+.difficulty-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12) !important;
+}
+
+.loading-dots {
+  color: #E8681A;
+  animation: loading-pulse 1s ease-in-out infinite;
+}
+@keyframes loading-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.clear-workspace-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}

@@ -219,7 +219,10 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
 
   return (
     <>
-      <div className="flex-shrink-0 w-[35%] min-w-[320px] h-full flex flex-col overflow-hidden border-r border-slate-200">
+      <div
+        className="flex-shrink-0 w-[35%] min-w-[320px] h-full flex flex-col overflow-hidden"
+        style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}
+      >
         <TutorChat
           messages={messages}
           onStudentAnswer={handleAnswer}

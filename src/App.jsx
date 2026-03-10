@@ -36,46 +36,88 @@ export default function App() {
       <div
         className="min-h-screen flex items-center justify-center"
         style={{
-          background: "linear-gradient(135deg, #FFF8F0 0%, #FFF3E0 50%, #F0F7EE 100%)",
+          background: "linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%)",
         }}
       >
         <div className="text-center p-8">
           <p
             className="text-3xl font-bold mb-2"
-            style={{ fontFamily: "'Nunito', sans-serif", color: "#1E3A5F" }}
+            style={{ fontFamily: "'Nunito', sans-serif", color: "white" }}
           >
             🏆 Amazing work!
           </p>
-          <p className="text-lg text-slate-600">You got {quizScore} out of 5 correct.</p>
+          <p className="text-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
+            You got {quizScore} out of 5 correct.
+          </p>
           {quizScore >= 4 && (
-            <p className="mt-2 text-green-600 font-medium">Lesson complete!</p>
+            <p className="mt-2 font-medium" style={{ color: "#10B981" }}>
+              Lesson complete!
+            </p>
           )}
         </div>
       </div>
     );
   }
 
+  const phaseLabels = { explore: "Explore", learn: "Learn", quiz: "Quiz", complete: "Complete" };
+  const phaseIndex = { explore: 0, learn: 1, quiz: 2, complete: 3 };
+  const currentIdx = phaseIndex[lessonPhase] ?? 0;
+
   return (
     <div
       className="flex flex-col overflow-hidden"
-      style={{ backgroundColor: "#F8FAFC", minWidth: 768, height: "100vh" }}
+      style={{
+        background: "linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%)",
+        minWidth: 768,
+        height: "100vh",
+      }}
     >
       <header
-        className="flex-shrink-0 flex items-center justify-between px-4 border-b border-slate-200 bg-white"
-        style={{ height: 56 }}
+        className="flex-shrink-0 flex items-center justify-between px-4"
+        style={{
+          height: 56,
+          background: "rgba(255,255,255,0.04)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+        }}
       >
         <h1
-          className="text-xl font-bold text-[#1E3A5F]"
+          className="text-xl font-bold text-white"
           style={{ fontFamily: "'Nunito', sans-serif" }}
         >
           Fraction Explorers 🍕
         </h1>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-500">
-            {lessonPhase === "explore" && "Explore"}
-            {lessonPhase === "learn" && "Learn"}
-            {lessonPhase === "quiz" && "Quiz"}
-            {lessonPhase === "complete" && "Complete"}
+        <div className="flex items-center gap-3">
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: i <= currentIdx ? "#E8681A" : "rgba(255,255,255,0.15)",
+                }}
+              />
+            ))}
+          </div>
+          <span
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: 12,
+              borderRadius: 20,
+              padding: "4px 12px",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            {phaseLabels[lessonPhase] ?? "Explore"}
           </span>
         </div>
       </header>

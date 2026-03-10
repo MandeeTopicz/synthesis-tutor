@@ -84,8 +84,9 @@ export default function FractionBar({
     ? undefined
     : `translate(${position.x}px, ${position.y}px)`;
   const scale = isDragging ? 1.05 : 1;
-  const boxShadow = isDragging
-    ? "0 8px 16px rgba(0,0,0,0.2)"
+  const pieceBoxShadow = `0 2px 8px ${colors.bg}66`;
+  const pieceFilter = isPlaced && !inTray
+    ? `drop-shadow(0 4px 8px ${colors.bg}44)`
     : "none";
 
   return (
@@ -106,10 +107,10 @@ export default function FractionBar({
         top: inTray ? 0 : 0,
         transform: transform ? `${transform} scale(${scale})` : `scale(${scale})`,
         transition: isDragging ? "none" : "transform 150ms ease, box-shadow 150ms ease",
-        boxShadow,
+        boxShadow: isDragging ? "0 8px 16px rgba(0,0,0,0.3)" : pieceBoxShadow,
+        filter: pieceFilter,
         cursor: draggable ? "grab" : "default",
         touchAction: "none",
-        outline: isPlaced ? "2px solid rgba(30, 58, 95, 0.4)" : "none",
         borderRadius: 6,
         ...style,
       }}
@@ -124,14 +125,20 @@ export default function FractionBar({
           rx="6"
           width="100%"
           height="100%"
+          stroke={colors.bg + "AA"}
+          strokeWidth="1"
         />
         <text
-          fill={colors.text}
+          fill="white"
           textAnchor="middle"
           dominantBaseline="central"
           x={width / 2}
           y={height / 2}
-          style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: Math.min(20, width / 3) }}
+          style={{
+            fontFamily: "'Nunito', sans-serif",
+            fontWeight: 700,
+            fontSize: Math.min(22, width / 2.8),
+          }}
         >
           {colors.label}
         </text>
