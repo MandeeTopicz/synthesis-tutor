@@ -8,26 +8,32 @@ import CheckQuiz from "./CheckQuiz.jsx";
 const scriptById = Object.fromEntries(lessonScript.map((n) => [n.id, n]));
 
 const firstNode = lessonScript[0];
-const initialState = {
-  currentNodeId: "node_01",
-  phase: "explore",
-  messages: [
-    {
-      id: "msg-node_01-init",
-      sender: "tutor",
-      text: firstNode.tutorMessage,
-      emotion: firstNode.tutorEmotion,
-    },
-  ],
-  attemptCount: 0,
-  workspacePieces: [],
-  workspaceFills: false,
-  isLoadingHint: false,
-  quizScore: 0,
-  quizComplete: false,
-  highlightPiece: null,
-  clearWorkspaceCounter: 0,
-};
+function getInitialState(selectedAvatar) {
+  const greeting = firstNode.tutorMessage.replace(
+    /^Hi!/,
+    `Hi ${selectedAvatar || "there"}!`
+  );
+  return {
+    currentNodeId: "node_01",
+    phase: "explore",
+    messages: [
+      {
+        id: "msg-node_01-init",
+        sender: "tutor",
+        text: greeting,
+        emotion: firstNode.tutorEmotion,
+      },
+    ],
+    attemptCount: 0,
+    workspacePieces: [],
+    workspaceFills: false,
+    isLoadingHint: false,
+    quizScore: 0,
+    quizComplete: false,
+    highlightPiece: null,
+    clearWorkspaceCounter: 0,
+  };
+}
 
 function lessonReducer(state, action) {
   switch (action.type) {
@@ -129,8 +135,12 @@ function validateAnswer(node, answer, state) {
   }
 }
 
-export default function LessonEngine({ onPhaseChange, onQuizComplete }) {
-  const [state, dispatch] = useReducer(lessonReducer, initialState);
+export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange, onQuizComplete }) {
+  const [state, dispatch] = useReducer(
+    lessonReducer,
+    selectedAvatar,
+    getInitialState
+  );
   const currentNode = state.currentNodeId ? scriptById[state.currentNodeId] : null;
 
   useEffect(() => {
