@@ -25,9 +25,11 @@ export default function FractionBar({
   style = {},
 }) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const elRef = useRef(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const isDraggingRef = useRef(false);
+  const hasMovedRef = useRef(false);
 
   const position = inTray ? { x: 0, y: 0 } : isDragging ? dragPosition : { x, y };
 
@@ -37,31 +39,34 @@ export default function FractionBar({
     if (!draggable || !onDragStart) return;
     e.preventDefault();
     const rect = e.currentTarget.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-    setIsDragging(true);
+    dragOffsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    hasMovedRef.current = false;
+    isDraggingRef.current = true;
     e.currentTarget.setPointerCapture(e.pointerId);
     onDragStart?.({ id, fraction, x: rect.left, y: rect.top, width, height });
   };
 
   const handlePointerMove = (e) => {
-    if (!isDragging || !elRef.current) return;
-    const rect = elRef.current.getBoundingClientRect();
+    if (!isDraggingRef.current || !elRef.current) return;
+    if (!hasMovedRef.current) {
+      hasMovedRef.current = true;
+      setIsDragging(true);
+    }
     const parent = elRef.current.parentElement?.getBoundingClientRect();
     if (!parent) return;
     setDragPosition({
-      x: e.clientX - parent.left - dragOffset.x,
-      y: e.clientY - parent.top - dragOffset.y,
+      x: e.clientX - parent.left - dragOffsetRef.current.x,
+      y: e.clientY - parent.top - dragOffsetRef.current.y,
     });
   };
 
   const handlePointerUp = (e) => {
-    if (!isDragging) return;
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
     e.currentTarget.releasePointerCapture(e.pointerId);
+    const didMove = hasMovedRef.current;
     setIsDragging(false);
-    if (onDragEnd) {
+    if (didMove && onDragEnd) {
       onDragEnd({
         id,
         fraction,

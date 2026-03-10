@@ -24,6 +24,7 @@ export default function FractionWorkspace({
   const [workspaceWidth, setWorkspaceWidth] = useState(externalWidth || 400);
   const [localPlaced, setLocalPlaced] = useState([]);
   const dragRef = useRef(null);
+  const isProcessingDrop = useRef(false);
 
   const wholeWidth = workspaceWidth;
   const pieceHeight = 48;
@@ -57,49 +58,48 @@ export default function FractionWorkspace({
     return (1 / denom) * wholeWidth;
   };
 
-  const computeFill = useCallback(
-    (pieces) => {
-      if (!pieces.length) return false;
-      const total = pieces.reduce((sum, { fraction }) => sum + 1 / (DENOMINATORS[fraction] ?? 1), 0);
-      return Math.abs(total - 1) < 0.01;
-    },
-    []
-  );
+  useEffect(() => {
+    console.log("dropZone element:", dropZoneRef.current);
+    console.log("dropZone children count:", dropZoneRef.current?.children?.length);
+  }, [localPlaced]);
 
-  const notifyPlaced = useCallback(
-    (pieces) => {
-      const fills = computeFill(pieces);
-      onPiecesPlaced?.({ pieces: pieces.map((p) => p.fraction), fills });
-    },
-    [onPiecesPlaced, computeFill]
-  );
+  useEffect(() => {
+    const fills =
+      localPlaced.length > 0 &&
+      Math.abs(localPlaced.reduce((sum, { fraction }) => sum + 1 / (DENOMINATORS[fraction] ?? 1), 0) - 1) < 0.01;
+    onPiecesPlaced?.({ pieces: localPlaced.map((p) => p.fraction), fills: !!fills });
+  }, [localPlaced, onPiecesPlaced]);
 
   const handleDragStart = (info) => {
     dragRef.current = info;
   };
 
   const handleDragEnd = (info) => {
+    if (isProcessingDrop.current) return;
+    isProcessingDrop.current = true;
+    setTimeout(() => { isProcessingDrop.current = false; }, 100);
+
     if (!dragRef.current) return;
-    const zone = dropZoneRef.current || containerRef.current;
-    if (!zone) return;
-    const rect = zone.getBoundingClientRect();
-    const dropX = info.clientX != null ? info.clientX - rect.left : info.x;
-    const dropY = info.clientY != null ? info.clientY - rect.top : info.y;
-    const inZone = dropX >= 0 && dropX <= rect.width && dropY >= 0 && dropY <= rect.height;
+    const dropZone = dropZoneRef.current;
+    if (!dropZone) return;
+    const rect = dropZone.getBoundingClientRect();
+    const clientX = info.clientX;
+    const clientY = info.clientY;
+    const localX = clientX - rect.left;
+    const localY = clientY - rect.top;
+    const inZone = localX >= 0 && localX <= rect.width && localY >= 0 && localY <= rect.height;
     if (inZone) {
-      const w = getPieceWidth(dragRef.current.fraction);
-      const newPiece = {
-        id: `placed-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        fraction: dragRef.current.fraction,
-        x: Math.max(0, dropX - w / 2),
-        y: Math.max(0, dropY - pieceHeight / 2),
-        width: w,
-      };
-      setLocalPlaced((prev) => {
-        const next = [...prev, newPiece];
-        notifyPlaced(next);
-        return next;
-      });
+      const fraction = dragRef.current.fraction;
+      const pieceWidth = workspaceWidth / DENOMINATORS[fraction];
+      const pieceHeightVal = 48;
+      const x = localX - pieceWidth / 2;
+      const y = localY - pieceHeightVal / 2;
+      console.log("clientX:", clientX, "clientY:", clientY);
+      console.log("rectLeft:", rect.left, "rectTop:", rect.top);
+      console.log("localX:", localX, "localY:", localY);
+      console.log("final x:", x, "final y:", y);
+      const newPiece = { id: Date.now(), fraction, x, y, width: pieceWidth };
+      setLocalPlaced((prev) => [...prev, newPiece]);
     }
     dragRef.current = null;
   };
@@ -124,30 +124,45 @@ export default function FractionWorkspace({
         </div>
       </div>
 
-      {/* Drop zone — workspace area */}
+      {/* Drop zone — direct parent of placed pieces, position: relative only */}
       <div
         ref={dropZoneRef}
-        className="flex-1 relative overflow-hidden min-h-[120px]"
-        style={{ touchAction: "none" }}
+        className="flex-1 overflow-hidden min-h-[120px]"
+        style={{
+          position: "relative",
+          padding: 0,
+          margin: 0,
+          touchAction: "none",
+        }}
       >
         {localPlaced.map((p) => (
-          <FractionBar
+          <div
             key={p.id}
-            id={p.id}
-            fraction={p.fraction}
-            width={p.width}
-            height={pieceHeight}
-            x={p.x}
-            y={p.y}
-            draggable={true}
-            inTray={false}
-            isPlaced={true}
-            onDragStart={handleDragStart}
-            onDragEnd={(info) => {
-              setLocalPlaced((prev) => prev.filter((x) => x.id !== p.id));
-              handleDragEnd(info);
+            style={{
+              position: "absolute",
+              left: p.x + "px",
+              top: p.y + "px",
+              width: p.width + "px",
+              height: pieceHeight + "px",
             }}
-          />
+          >
+            <FractionBar
+              id={p.id}
+              fraction={p.fraction}
+              width={p.width}
+              height={pieceHeight}
+              x={0}
+              y={0}
+              draggable={true}
+              inTray={false}
+              isPlaced={true}
+              onDragStart={handleDragStart}
+              onDragEnd={(info) => {
+                setLocalPlaced((prev) => prev.filter((x) => x.id !== p.id));
+                handleDragEnd(info);
+              }}
+            />
+          </div>
         ))}
       </div>
 
