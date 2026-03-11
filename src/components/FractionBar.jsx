@@ -76,6 +76,8 @@ export default function FractionBar({
         height,
         clientX: e.clientX,
         clientY: e.clientY,
+        offsetX: dragOffsetRef.current.x,
+        offsetY: dragOffsetRef.current.y,
       });
     }
   };

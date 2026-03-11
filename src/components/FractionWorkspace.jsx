@@ -19,6 +19,7 @@ const TRAY_LABELS = {
   eighth: { notation: "1/8", word: "Eighth" },
 };
 const MAX_BAR_WIDTH = 600;
+const TICK_FRACTIONS = [1 / 2, 1 / 3, 1 / 4, 1 / 6, 1 / 8];
 
 export default function FractionWorkspace({
   placedPieces,
@@ -95,8 +96,10 @@ export default function FractionWorkspace({
       const fraction = dragRef.current.fraction;
       const pieceWidth = wholeWidth / DENOMINATORS[fraction];
       const pieceHeightVal = 48;
-      const x = localX - pieceWidth / 2;
-      const y = localY - pieceHeightVal / 2;
+      const offsetX = info.offsetX ?? pieceWidth / 2;
+      const offsetY = info.offsetY ?? pieceHeightVal / 2;
+      const x = localX - offsetX;
+      const y = localY - offsetY;
       const newPiece = { id: Date.now(), fraction, x, y, width: pieceWidth };
       setLocalPlaced((prev) => [...prev, newPiece]);
     }
@@ -126,16 +129,6 @@ export default function FractionWorkspace({
           padding: "120px 24px 24px",
         }}
       >
-        <span
-          style={{
-            color: "rgba(255,255,255,0.4)",
-            fontSize: 12,
-            fontFamily: "'Inter', sans-serif",
-            marginBottom: 8,
-          }}
-        >
-          1 whole
-        </span>
         <div
           style={{
             width: wholeWidth,
@@ -164,6 +157,49 @@ export default function FractionWorkspace({
           overflow: "hidden",
         }}
       >
+        {/* One-whole reference line (visual only; answer can be placed anywhere in drop zone) */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: wholeWidth,
+            height: 2,
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: 2,
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              left: 0,
+              top: -14,
+              fontSize: 10,
+              color: "rgba(255,255,255,0.2)",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            One Whole
+          </span>
+          {TICK_FRACTIONS.map((frac, i) => (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: wholeWidth * frac - 0.5,
+                top: -4,
+                width: 1,
+                height: 8,
+                background: "rgba(255,255,255,0.06)",
+                borderRadius: 1,
+              }}
+            />
+          ))}
+        </div>
+
         {localPlaced.map((p) => (
           <div
             key={p.id}
@@ -173,6 +209,7 @@ export default function FractionWorkspace({
               top: p.y + "px",
               width: p.width + "px",
               height: pieceHeight + "px",
+              zIndex: 1,
             }}
           >
             <FractionBar

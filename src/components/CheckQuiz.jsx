@@ -4,7 +4,7 @@ import { quizQuestions } from "../data/lessonScript.js";
 import FractionBar from "./FractionBar.jsx";
 
 const BAR_WIDTH = 120;
-const BAR_HEIGHT = 40;
+const BAR_HEIGHT = 48;
 const TOTAL_QUESTIONS = quizQuestions.length;
 
 function choiceToBars(choice, questionId) {
@@ -20,6 +20,20 @@ function choiceToBars(choice, questionId) {
   return [];
 }
 
+const choiceBtnBase = {
+  width: "min(400px, 80vw)",
+  padding: "16px 24px",
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: 14,
+  color: "white",
+  fontSize: 16,
+  fontWeight: 600,
+  fontFamily: "'Inter', sans-serif",
+  cursor: "pointer",
+  transition: "all 200ms ease",
+};
+
 export default function CheckQuiz({ onComplete }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -31,16 +45,27 @@ export default function CheckQuiz({ onComplete }) {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [fillBlankValue, setFillBlankValue] = useState("");
   const [trueFalseValue, setTrueFalseValue] = useState(null);
+  const [questionResults, setQuestionResults] = useState(() => Array(TOTAL_QUESTIONS).fill(null));
+  const [hoverChoice, setHoverChoice] = useState(null);
+  const [finalScore, setFinalScore] = useState(null);
 
   const q = quizQuestions[currentIndex];
   const isLast = currentIndex === quizQuestions.length - 1;
 
   useEffect(() => {
     if (lastCorrect) {
+      setQuestionResults((prev) => {
+        const next = [...prev];
+        next[currentIndex] = "correct";
+        return next;
+      });
       const t = setTimeout(() => {
         setLastCorrect(false);
         if (isLast) {
+          setFinalScore(score + 1);
           setFinished(true);
+          const capped = Math.min(score + 1, TOTAL_QUESTIONS);
+          if (capped >= 4) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
         } else {
           setCurrentIndex((i) => i + 1);
           setRetryUsed(false);
@@ -52,21 +77,17 @@ export default function CheckQuiz({ onComplete }) {
       }, 1000);
       return () => clearTimeout(t);
     }
-  }, [lastCorrect, isLast]);
+  }, [lastCorrect, isLast, currentIndex, score]);
 
-  const completedRef = useRef(false);
+  const hasCompleted = useRef(false);
   const isProcessingAnswer = useRef(false);
 
-  useEffect(() => {
-    if (finished && !completedRef.current) {
-      completedRef.current = true;
-      const cappedScore = Math.min(score, TOTAL_QUESTIONS);
-      onComplete?.(cappedScore);
-      if (cappedScore >= 4) {
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-      }
-    }
-  }, [finished, score, onComplete]);
+  const handleBackToHome = () => {
+    if (hasCompleted.current) return;
+    hasCompleted.current = true;
+    const cappedScore = Math.min(finalScore ?? score, TOTAL_QUESTIONS);
+    onComplete?.(cappedScore);
+  };
 
   const handleSubmit = () => {
     if (!q) return;
@@ -85,6 +106,11 @@ export default function CheckQuiz({ onComplete }) {
       setScore((s) => s + 1);
       setLastCorrect(true);
     } else {
+      setQuestionResults((prev) => {
+        const next = [...prev];
+        next[currentIndex] = "wrong";
+        return next;
+      });
       if (!retryUsed) {
         setRetryUsed(true);
         setLastWrong(true);
@@ -95,6 +121,7 @@ export default function CheckQuiz({ onComplete }) {
         setTimeout(() => setLastWrong(false), 600);
         setTimeout(() => {
           if (isLast) {
+            setFinalScore(score);
             setFinished(true);
           } else {
             setCurrentIndex((i) => i + 1);
@@ -110,15 +137,63 @@ export default function CheckQuiz({ onComplete }) {
   };
 
   if (finished) {
-    const displayScore = Math.min(score, TOTAL_QUESTIONS);
+    const displayScore = Math.min(finalScore ?? score, TOTAL_QUESTIONS);
+    const starCount = displayScore >= 4 ? 3 : displayScore === 3 ? 2 : 1;
+    console.log("final score for stars:", finalScore ?? score);
     return (
-      <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center p-6 rounded-lg">
-        <p className="text-2xl font-bold text-[#1E293B] mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-          {displayScore >= 4 ? "🏆 Lesson Complete!" : "Great effort!"}
-        </p>
-        <p className="text-lg text-[#64748B]">
-          You got {displayScore} out of {TOTAL_QUESTIONS} correct.
-        </p>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 300,
+          background: "linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%)",
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 64, marginBottom: 16 }}>🏆</div>
+          <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 36, fontWeight: 700, color: "white", marginBottom: 12 }}>
+            Amazing work!
+          </p>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, color: "rgba(255,255,255,0.7)", marginBottom: 16 }}>
+            You got {displayScore} out of {TOTAL_QUESTIONS} correct.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 32 }}>
+            {[1, 2, 3].map((i) => (
+              <span
+                key={i}
+                style={{
+                  fontSize: 40,
+                  color: i <= starCount ? "#F59E0B" : "rgba(255,255,255,0.2)",
+                }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={handleBackToHome}
+            style={{
+              background: "linear-gradient(135deg, #E8681A, #F97316)",
+              color: "white",
+              borderRadius: 14,
+              padding: "14px 48px",
+              fontSize: 16,
+              fontWeight: 700,
+              border: "none",
+              boxShadow: "0 4px 20px rgba(232,104,26,0.4)",
+              cursor: "pointer",
+            }}
+          >
+            Back to Home
+          </button>
+        </div>
       </div>
     );
   }
@@ -130,115 +205,258 @@ export default function CheckQuiz({ onComplete }) {
     q.type === "fill_blank" ? fillBlankValue.trim() !== "" :
     q.type === "true_false" ? trueFalseValue != null : false;
 
+  const getChoiceStyle = (choice) => {
+    const selected = selectedChoice === choice;
+    const isCorrect = answerRevealed && choice === q.correctAnswer;
+    const isWrong = answerRevealed && selected && choice !== q.correctAnswer;
+    if (isCorrect) return { ...choiceBtnBase, background: "rgba(16,185,129,0.2)", border: "1px solid #10B981" };
+    if (isWrong) return { ...choiceBtnBase, background: "rgba(239,68,68,0.2)", border: "1px solid #EF4444" };
+    if (selected) return { ...choiceBtnBase, background: "rgba(232,104,26,0.2)", border: "1px solid #E8681A" };
+    return { ...choiceBtnBase, background: hoverChoice === choice ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", transform: hoverChoice === choice ? "translateY(-1px)" : undefined };
+  };
+
   return (
-    <div className="absolute inset-0 bg-white/95 flex flex-col p-6 overflow-auto rounded-lg">
-      <div className="flex justify-center gap-1 mb-4">
-        {quizQuestions.map((_, i) => (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 300,
+        background: "linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%)",
+        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)",
+        backgroundSize: "32px 32px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 56,
+          background: "rgba(0,0,0,0.3)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div
-            key={i}
-            className={`w-2 h-2 rounded-full ${i < currentIndex ? "bg-green-500" : i === currentIndex ? "bg-[#E8681A]" : "bg-slate-200"}`}
-          />
-        ))}
-      </div>
-      <p className="text-sm text-slate-500 mb-1">
-        Question {currentIndex + 1} of {quizQuestions.length}
-      </p>
-      <p className="text-lg font-semibold text-[#1E293B] mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>
-        {q.question}
-      </p>
-
-      {q.showBars && q.choices && (
-        <div className="flex flex-wrap gap-6 mb-4">
-          {q.choices.map((choice) => {
-            const bars = choiceToBars(choice, q.id);
-            const pieceWidth = bars[0] ? BAR_WIDTH / (bars[0].fraction === "fourth" ? 4 : 8) * (bars[0].fraction === "fourth" ? 1 : 1) : BAR_WIDTH / 4;
-            const denom = bars[0]?.fraction === "fourth" ? 4 : 8;
-            const pieceW = BAR_WIDTH / denom;
-            return (
-              <div key={choice} className="flex items-center gap-2">
-                <div className="flex" style={{ width: BAR_WIDTH, height: BAR_HEIGHT }}>
-                  {bars[0] && Array.from({ length: bars[0].count }).map((_, i) => (
-                    <FractionBar
-                      key={i}
-                      fraction={bars[0].fraction}
-                      width={pieceW}
-                      height={BAR_HEIGHT}
-                      draggable={false}
-                      inTray={false}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-slate-600">{choice}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {q.type === "multiple_choice" && (
-        <div className="space-y-2 mb-4">
-          {q.choices.map((choice) => (
-            <button
-              key={choice}
-              type="button"
-              onClick={() => setSelectedChoice(choice)}
-              className={`w-full text-left py-3 px-4 rounded-xl border-2 transition ${selectedChoice === choice ? "border-[#E8681A] bg-orange-50" : "border-slate-200 hover:border-slate-300"}`}
-            >
-              {choice}
-            </button>
-          ))}
-        </div>
-      )}
-      {q.type === "fill_blank" && (
-        <div className="mb-4">
-          {q.prompt && <p className="text-slate-600 mb-2">{q.prompt}</p>}
-          <input
-            type="text"
-            value={fillBlankValue}
-            onChange={(e) => setFillBlankValue(e.target.value)}
-            className="border-2 border-slate-200 rounded-xl px-4 py-3 w-full max-w-xs"
-            placeholder="?"
-          />
-        </div>
-      )}
-      {q.type === "true_false" && (
-        <div className="flex gap-3 mb-4">
-          <button
-            type="button"
-            onClick={() => setTrueFalseValue("true")}
-            className={`py-3 px-6 rounded-xl border-2 ${trueFalseValue === "true" ? "border-[#E8681A] bg-orange-50" : "border-slate-200"}`}
+            style={{
+              width: 36,
+              height: 36,
+              background: "linear-gradient(135deg, #E8681A 0%, #F97316 100%)",
+              borderRadius: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            True
-          </button>
-          <button
-            type="button"
-            onClick={() => setTrueFalseValue("false")}
-            className={`py-3 px-6 rounded-xl border-2 ${trueFalseValue === "false" ? "border-[#E8681A] bg-orange-50" : "border-slate-200"}`}
-          >
-            False
-          </button>
+            <span style={{ fontFamily: "Nunito, sans-serif", fontSize: 18, fontWeight: 900, color: "white" }}>S</span>
+          </div>
+          <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 16, fontWeight: 700, color: "white" }}>
+            Fraction Explorers
+          </span>
         </div>
-      )}
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>
+          Question {currentIndex + 1} of {TOTAL_QUESTIONS}
+        </span>
+      </header>
 
-      {lastWrong && !answerRevealed && retryUsed && (
-        <p className="text-red-600 font-medium mb-2">Try again!</p>
-      )}
-      {answerRevealed && (
-        <p className="text-green-600 font-medium mb-2">
-          The correct answer was: {q.correctAnswer}
+      {/* Question card — floating, no background */}
+      <div
+        style={{
+          maxWidth: 560,
+          width: "90vw",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          paddingTop: 80,
+        }}
+      >
+        <p
+          style={{
+            color: "white",
+            fontSize: 22,
+            fontWeight: 700,
+            fontFamily: "'Nunito', sans-serif",
+            textAlign: "center",
+            marginBottom: 32,
+          }}
+        >
+          {q.question}
         </p>
-      )}
 
-      <div className={`mt-auto pt-4 ${lastWrong ? "animate-shake" : ""}`}>
+        {q.type === "multiple_choice" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
+            {q.choices.map((choice) => {
+              const bars = q.showBars ? choiceToBars(choice, q.id) : [];
+              const denom = bars[0]?.fraction === "fourth" ? 4 : 8;
+              const pieceW = bars[0] ? BAR_WIDTH / denom : 0;
+              return (
+                <button
+                  key={choice}
+                  type="button"
+                  onClick={() => !answerRevealed && setSelectedChoice(choice)}
+                  onMouseEnter={() => setHoverChoice(choice)}
+                  onMouseLeave={() => setHoverChoice(null)}
+                  style={{
+                    ...getChoiceStyle(choice),
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  {q.showBars && bars[0] && (
+                    <div style={{ display: "flex", width: BAR_WIDTH, height: BAR_HEIGHT, borderRadius: 8, overflow: "hidden" }}>
+                      {Array.from({ length: bars[0].count }).map((_, i) => (
+                        <FractionBar
+                          key={i}
+                          fraction={bars[0].fraction}
+                          width={pieceW}
+                          height={BAR_HEIGHT}
+                          draggable={false}
+                          inTray={false}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <span>{choice}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {q.type === "fill_blank" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            {q.prompt && (
+              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 16, fontFamily: "'Inter', sans-serif", marginBottom: 8 }}>
+                {q.prompt}
+              </p>
+            )}
+            <input
+              type="text"
+              value={fillBlankValue}
+              onChange={(e) => setFillBlankValue(e.target.value)}
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 12,
+                padding: "14px 20px",
+                color: "white",
+                fontSize: 18,
+                textAlign: "center",
+                width: 120,
+                fontFamily: "'Inter', sans-serif",
+              }}
+              placeholder="?"
+            />
+          </div>
+        )}
+
+        {q.type === "true_false" && (
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            {["true", "false"].map((val) => {
+              const label = val === "true" ? "True" : "False";
+              const selected = trueFalseValue === val;
+              const isCorrect = answerRevealed && val === q.correctAnswer;
+              const isWrong = answerRevealed && selected && val !== q.correctAnswer;
+              let style = { ...choiceBtnBase };
+              if (isCorrect) style = { ...style, background: "rgba(16,185,129,0.2)", border: "1px solid #10B981" };
+              else if (isWrong) style = { ...style, background: "rgba(239,68,68,0.2)", border: "1px solid #EF4444" };
+              else if (selected) style = { ...style, background: "rgba(232,104,26,0.2)", border: "1px solid #E8681A" };
+              return (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => !answerRevealed && setTrueFalseValue(val)}
+                  style={style}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="w-full py-3 px-4 rounded-xl font-semibold text-white disabled:opacity-50"
-          style={{ backgroundColor: "#E8681A" }}
+          style={{
+            background: "linear-gradient(135deg, #E8681A, #F97316)",
+            color: "white",
+            borderRadius: 14,
+            padding: "14px 48px",
+            fontSize: 16,
+            fontWeight: 700,
+            border: "none",
+            boxShadow: "0 4px 20px rgba(232,104,26,0.4)",
+            marginTop: 24,
+            cursor: canSubmit ? "pointer" : "default",
+            opacity: canSubmit ? 1 : 0.4,
+          }}
         >
           {retryUsed && !answerRevealed ? "Try again" : "Submit"}
         </button>
+
+        {lastCorrect && (
+          <p style={{ color: "#10B981", fontSize: 18, fontWeight: 700, textAlign: "center", marginTop: 16 }}>
+            ✓ Correct!
+          </p>
+        )}
+        {lastWrong && !answerRevealed && retryUsed && (
+          <p style={{ color: "#EF4444", fontSize: 18, fontWeight: 700, textAlign: "center", marginTop: 16 }}>
+            ✗ Try again
+          </p>
+        )}
+        {answerRevealed && (
+          <p style={{ color: "#10B981", fontSize: 18, fontWeight: 700, textAlign: "center", marginTop: 16 }}>
+            The correct answer was: {q.correctAnswer}
+          </p>
+        )}
+      </div>
+
+      {/* Progress dots — bottom center */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 32,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: 8,
+        }}
+      >
+        {quizQuestions.map((_, i) => {
+          const result = questionResults[i];
+          const isCurrent = i === currentIndex;
+          let bg = "rgba(255,255,255,0.2)";
+          if (result === "correct") bg = "#10B981";
+          else if (result === "wrong") bg = "#EF4444";
+          else if (isCurrent) bg = "#E8681A";
+          return (
+            <div
+              key={i}
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: bg,
+                transform: isCurrent ? "scale(1.3)" : undefined,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

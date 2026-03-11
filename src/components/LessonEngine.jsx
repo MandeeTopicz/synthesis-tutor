@@ -259,21 +259,25 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
         }}
       />
       <LessonHeader phase={state.phase} />
-      <FractionWorkspace
-        onPiecesPlaced={handlePiecesPlaced}
-        highlightPiece={state.highlightPiece}
-        clearWorkspace={state.clearWorkspaceCounter}
-        onClearWorkspaceAck={handleClearWorkspaceAck}
-      />
-      <TutorOverlay
-        currentMessage={currentMessage}
-        tutorEmotion={tutorEmotion}
-        currentNode={currentNode}
-        onAnswer={handleAnswer}
-        isLoading={state.isLoadingHint}
-        feedback={feedback}
-      />
-      {showAdvanceButton && (
+      {state.phase !== "quiz" && (
+        <FractionWorkspace
+          onPiecesPlaced={handlePiecesPlaced}
+          highlightPiece={state.highlightPiece}
+          clearWorkspace={state.clearWorkspaceCounter}
+          onClearWorkspaceAck={handleClearWorkspaceAck}
+        />
+      )}
+      {state.phase !== "quiz" && (
+        <TutorOverlay
+          currentMessage={currentMessage}
+          tutorEmotion={tutorEmotion}
+          currentNode={currentNode}
+          onAnswer={handleAnswer}
+          isLoading={state.isLoadingHint}
+          feedback={feedback}
+        />
+      )}
+      {state.phase !== "quiz" && showAdvanceButton && (
         <AdvanceButton onAdvance={() => handleAnswer("next")} />
       )}
       {state.phase === "quiz" && (
