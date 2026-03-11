@@ -10,6 +10,15 @@ const DENOMINATORS = {
   sixth: 6,
   eighth: 8,
 };
+const TRAY_LABELS = {
+  whole: { notation: "1", word: "One" },
+  half: { notation: "1/2", word: "Half" },
+  third: { notation: "1/3", word: "Third" },
+  fourth: { notation: "1/4", word: "Fourth" },
+  sixth: { notation: "1/6", word: "Sixth" },
+  eighth: { notation: "1/8", word: "Eighth" },
+};
+const MAX_BAR_WIDTH = 600;
 
 export default function FractionWorkspace({
   placedPieces,
@@ -21,14 +30,13 @@ export default function FractionWorkspace({
 }) {
   const containerRef = useRef(null);
   const dropZoneRef = useRef(null);
-  const [workspaceWidth, setWorkspaceWidth] = useState(externalWidth || 400);
+  const [workspaceWidth, setWorkspaceWidth] = useState(externalWidth || Math.min(400, MAX_BAR_WIDTH));
   const [localPlaced, setLocalPlaced] = useState([]);
   const dragRef = useRef(null);
   const isProcessingDrop = useRef(false);
 
-  const wholeWidth = workspaceWidth;
+  const wholeWidth = Math.min(workspaceWidth, MAX_BAR_WIDTH);
   const pieceHeight = 48;
-  const refRowHeight = pieceHeight + 16;
 
   useEffect(() => {
     if (externalWidth) setWorkspaceWidth(externalWidth);
@@ -38,7 +46,7 @@ export default function FractionWorkspace({
     if (!containerRef.current) return;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect?.width;
-      if (w) setWorkspaceWidth(w);
+      if (w) setWorkspaceWidth(Math.min(w, MAX_BAR_WIDTH));
     });
     ro.observe(containerRef.current);
     return () => ro.disconnect();
@@ -57,11 +65,6 @@ export default function FractionWorkspace({
     const denom = DENOMINATORS[fraction] ?? 1;
     return (1 / denom) * wholeWidth;
   };
-
-  useEffect(() => {
-    console.log("dropZone element:", dropZoneRef.current);
-    console.log("dropZone children count:", dropZoneRef.current?.children?.length);
-  }, [localPlaced]);
 
   useEffect(() => {
     const fills =
@@ -90,14 +93,10 @@ export default function FractionWorkspace({
     const inZone = localX >= 0 && localX <= rect.width && localY >= 0 && localY <= rect.height;
     if (inZone) {
       const fraction = dragRef.current.fraction;
-      const pieceWidth = workspaceWidth / DENOMINATORS[fraction];
+      const pieceWidth = wholeWidth / DENOMINATORS[fraction];
       const pieceHeightVal = 48;
       const x = localX - pieceWidth / 2;
       const y = localY - pieceHeightVal / 2;
-      console.log("clientX:", clientX, "clientY:", clientY);
-      console.log("rectLeft:", rect.left, "rectTop:", rect.top);
-      console.log("localX:", localX, "localY:", localY);
-      console.log("final x:", x, "final y:", y);
       const newPiece = { id: Date.now(), fraction, x, y, width: pieceWidth };
       setLocalPlaced((prev) => [...prev, newPiece]);
     }
@@ -107,55 +106,62 @@ export default function FractionWorkspace({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col h-full min-h-0"
-      style={{ minWidth: 0, background: "rgba(0,0,0,0.15)" }}
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minWidth: 0,
+      }}
     >
-      {/* Reference row — 1 whole bar at top */}
-      <div className="flex-shrink-0 p-4 flex flex-col items-center gap-2">
+      {/* Reference bar — centered, below overlay area to avoid grey text showing through */}
+      <div
+        style={{
+          flex: "0 0 30%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "120px 24px 24px",
+        }}
+      >
         <span
           style={{
             color: "rgba(255,255,255,0.4)",
             fontSize: 12,
             fontFamily: "'Inter', sans-serif",
+            marginBottom: 8,
           }}
         >
           1 whole
         </span>
         <div
           style={{
-            width: wholeWidth + 32,
-            padding: "12px 16px",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 10,
+            width: wholeWidth,
+            height: pieceHeight,
           }}
         >
-          <div className="relative" style={{ width: wholeWidth, height: pieceHeight, margin: "0 auto" }}>
-            <FractionBar
-              fraction="whole"
-              width={wholeWidth}
-              height={pieceHeight}
-              draggable={false}
-              inTray={false}
-              isPlaced={false}
-            />
-          </div>
+          <FractionBar
+            fraction="whole"
+            width={wholeWidth}
+            height={pieceHeight}
+            draggable={false}
+            inTray={false}
+            isPlaced={false}
+          />
         </div>
       </div>
 
-      {/* Drop zone — direct parent of placed pieces, position: relative only */}
+      {/* Drop zone — fills middle, transparent */}
       <div
         ref={dropZoneRef}
-        className="flex-1 overflow-hidden mx-4 mb-2"
         style={{
+          flex: 1,
           position: "relative",
-          padding: 0,
-          margin: "0 16px 8px",
           touchAction: "none",
-          minHeight: 160,
-          background: "rgba(255,255,255,0.02)",
-          border: "2px dashed rgba(255,255,255,0.1)",
-          borderRadius: 12,
+          minHeight: 120,
+          overflow: "hidden",
         }}
       >
         {localPlaced.map((p) => (
@@ -189,87 +195,93 @@ export default function FractionWorkspace({
         ))}
       </div>
 
-      {/* Piece tray */}
+      {/* Clear button — left above tray */}
       <div
-        className="flex-shrink-0 flex flex-col p-4"
         style={{
-          background: "rgba(0,0,0,0.2)",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-          padding: "12px 16px",
+          flexShrink: 0,
+          padding: "8px 24px 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
         }}
       >
-        <div className="flex items-center justify-between mb-2">
-          <span
-            style={{
-              color: "rgba(255,255,255,0.4)",
-              fontSize: 11,
-              textTransform: "uppercase",
-              letterSpacing: "2px",
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            Piece tray
-          </span>
-          <button
-            type="button"
-            onClick={() => setLocalPlaced([])}
-            className="clear-workspace-btn"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              color: "rgba(255,255,255,0.6)",
-              fontSize: 12,
-              borderRadius: 8,
-              padding: "6px 12px",
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            Clear workspace
-          </button>
-        </div>
-        <div
-          className="flex flex-wrap gap-4 justify-center items-end"
+        <button
+          type="button"
+          onClick={() => setLocalPlaced([])}
+          className="clear-workspace-btn"
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            color: "rgba(255,255,255,0.6)",
+            fontSize: 12,
+            borderRadius: 8,
+            padding: "6px 12px",
+            fontFamily: "'Inter', sans-serif",
+          }}
         >
-          {TRAY_FRACTIONS.map((fraction) => {
-            const w = getPieceWidth(fraction);
-            const isHighlight = highlightPiece === fraction;
-            return (
+          Clear workspace
+        </button>
+      </div>
+
+      {/* Piece tray — single centered row */}
+      <div
+        style={{
+          flexShrink: 0,
+          padding: "12px 24px 16px",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: 12,
+          alignItems: "flex-end",
+        }}
+      >
+        {TRAY_FRACTIONS.map((fraction) => {
+          const w = getPieceWidth(fraction);
+          const isHighlight = highlightPiece === fraction;
+          const labels = TRAY_LABELS[fraction] ?? { notation: fraction, word: fraction };
+          const slotWidth = fraction === "whole" ? wholeWidth + 32 : wholeWidth / 2;
+          return (
+            <div
+              key={fraction}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+                width: slotWidth,
+                outline: isHighlight ? "3px solid #E8681A" : "none",
+                borderRadius: 10,
+                padding: 8,
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <div style={{ width: w, height: pieceHeight }}>
+                <FractionBar
+                  id={`tray-${fraction}`}
+                  fraction={fraction}
+                  width={w}
+                  height={pieceHeight}
+                  draggable={true}
+                  inTray={true}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                />
+              </div>
               <div
-                key={fraction}
-                className="flex flex-col items-center gap-1"
                 style={{
-                  outline: isHighlight ? "3px solid #E8681A" : "none",
-                  borderRadius: 10,
-                  padding: 8,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11,
+                  color: "rgba(255,255,255,0.35)",
+                  textAlign: "center",
+                  marginTop: 4,
                 }}
               >
-                <div style={{ width: w, height: pieceHeight }}>
-                  <FractionBar
-                    id={`tray-${fraction}`}
-                    fraction={fraction}
-                    width={w}
-                    height={pieceHeight}
-                    draggable={true}
-                    inTray={true}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                  />
-                </div>
-                <span
-                  style={{
-                    fontFamily: "'Nunito', sans-serif",
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.5)",
-                  }}
-                >
-                  {FRACTION_COLORS[fraction]?.label ?? fraction}
-                </span>
+                {labels.word}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

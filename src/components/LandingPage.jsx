@@ -7,7 +7,6 @@ const AVATARS = [
     skin: "#FCD34D",
     stroke: "#F59E0B",
     eyes: "#92400E",
-    level: 1,
   },
   {
     id: "River",
@@ -17,7 +16,6 @@ const AVATARS = [
     skin: "#93C5FD",
     stroke: "#3B82F6",
     eyes: "#1E3A5F",
-    level: 2,
   },
   {
     id: "Sage",
@@ -27,7 +25,6 @@ const AVATARS = [
     skin: "#6EE7B7",
     stroke: "#10B981",
     eyes: "#065F46",
-    level: 3,
   },
   {
     id: "Blaze",
@@ -37,7 +34,6 @@ const AVATARS = [
     skin: "#FCA5A5",
     stroke: "#F97316",
     eyes: "#7F1D1D",
-    level: 4,
   },
 ];
 
@@ -210,22 +206,6 @@ export default function LandingPage({ selectedAvatar, setSelectedAvatar, difficu
                   }}
                 >
                   <div style={{ position: "relative", flex: 1, minHeight: 80 }}>
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        fontSize: 9,
-                        fontWeight: 800,
-                        color: avatar.accent,
-                        background: `${avatar.accent}25`,
-                        border: `1px solid ${avatar.accent}40`,
-                        padding: "3px 7px",
-                        borderRadius: 6,
-                      }}
-                    >
-                      LVL {avatar.level}
-                    </div>
                     <div
                       style={{
                         display: "flex",

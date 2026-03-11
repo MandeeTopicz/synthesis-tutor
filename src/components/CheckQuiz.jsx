@@ -5,6 +5,7 @@ import FractionBar from "./FractionBar.jsx";
 
 const BAR_WIDTH = 120;
 const BAR_HEIGHT = 40;
+const TOTAL_QUESTIONS = quizQuestions.length;
 
 function choiceToBars(choice, questionId) {
   if (questionId === "q1") {
@@ -54,11 +55,14 @@ export default function CheckQuiz({ onComplete }) {
   }, [lastCorrect, isLast]);
 
   const completedRef = useRef(false);
+  const isProcessingAnswer = useRef(false);
+
   useEffect(() => {
     if (finished && !completedRef.current) {
       completedRef.current = true;
-      onComplete?.(score);
-      if (score >= 4) {
+      const cappedScore = Math.min(score, TOTAL_QUESTIONS);
+      onComplete?.(cappedScore);
+      if (cappedScore >= 4) {
         confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
       }
     }
@@ -66,6 +70,9 @@ export default function CheckQuiz({ onComplete }) {
 
   const handleSubmit = () => {
     if (!q) return;
+    if (isProcessingAnswer.current) return;
+    isProcessingAnswer.current = true;
+    setTimeout(() => { isProcessingAnswer.current = false; }, 500);
     let correct = false;
     if (q.type === "multiple_choice") {
       correct = selectedChoice === q.correctAnswer;
@@ -103,13 +110,14 @@ export default function CheckQuiz({ onComplete }) {
   };
 
   if (finished) {
+    const displayScore = Math.min(score, TOTAL_QUESTIONS);
     return (
       <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center p-6 rounded-lg">
         <p className="text-2xl font-bold text-[#1E293B] mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-          {score >= 4 ? "🏆 Lesson Complete!" : "Great effort!"}
+          {displayScore >= 4 ? "🏆 Lesson Complete!" : "Great effort!"}
         </p>
         <p className="text-lg text-[#64748B]">
-          You got {score} out of {quizQuestions.length} correct.
+          You got {displayScore} out of {TOTAL_QUESTIONS} correct.
         </p>
       </div>
     );

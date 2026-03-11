@@ -34,3 +34,25 @@
 .clear-workspace-btn:hover {
   background: rgba(255, 255, 255, 0.1) !important;
 }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(232,104,26,0.5); }
+  50% { box-shadow: 0 4px 32px rgba(232,104,26,0.8); }
+}
+.advance-btn {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.tutor-message-fade {
+  animation: message-fade-in 400ms ease forwards;
+}
+@keyframes message-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
