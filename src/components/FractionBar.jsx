@@ -31,7 +31,7 @@ export default function FractionBar({
   const isDraggingRef = useRef(false);
   const hasMovedRef = useRef(false);
 
-  const position = inTray ? { x: 0, y: 0 } : isDragging ? dragPosition : { x, y };
+  const position = isDragging ? dragPosition : inTray ? { x: 0, y: 0 } : { x, y };
 
   const colors = FRACTION_COLORS[fraction] ?? FRACTION_COLORS.whole;
 
@@ -52,12 +52,20 @@ export default function FractionBar({
       hasMovedRef.current = true;
       setIsDragging(true);
     }
-    const parent = elRef.current.parentElement?.getBoundingClientRect();
-    if (!parent) return;
-    setDragPosition({
-      x: e.clientX - parent.left - dragOffsetRef.current.x,
-      y: e.clientY - parent.top - dragOffsetRef.current.y,
-    });
+    if (inTray) {
+      // Fixed positioning: use viewport coordinates directly
+      setDragPosition({
+        x: e.clientX - dragOffsetRef.current.x,
+        y: e.clientY - dragOffsetRef.current.y,
+      });
+    } else {
+      const parent = elRef.current.parentElement?.getBoundingClientRect();
+      if (!parent) return;
+      setDragPosition({
+        x: e.clientX - parent.left - dragOffsetRef.current.x,
+        y: e.clientY - parent.top - dragOffsetRef.current.y,
+      });
+    }
   };
 
   const handlePointerUp = (e) => {
@@ -82,7 +90,7 @@ export default function FractionBar({
     }
   };
 
-  const transform = inTray
+  const transform = (inTray && !isDragging)
     ? undefined
     : `translate(${position.x}px, ${position.y}px)`;
   const scale = isDragging ? 1.05 : 1;
@@ -104,13 +112,14 @@ export default function FractionBar({
       }}
       onClick={onSplit && !draggable ? onSplit : undefined}
       style={{
-        position: inTray ? "relative" : "absolute",
-        left: inTray ? 0 : 0,
-        top: inTray ? 0 : 0,
+        position: (inTray && !isDragging) ? "relative" : isDragging && inTray ? "fixed" : "absolute",
+        left: 0,
+        top: 0,
         transform: transform ? `${transform} scale(${scale})` : `scale(${scale})`,
         transition: isDragging ? "none" : "transform 150ms ease, box-shadow 150ms ease",
         boxShadow: isDragging ? "0 8px 16px rgba(0,0,0,0.3)" : pieceBoxShadow,
         filter: pieceFilter,
+        zIndex: isDragging ? 9999 : undefined,
         cursor: draggable ? "grab" : "default",
         touchAction: "none",
         borderRadius: 6,
