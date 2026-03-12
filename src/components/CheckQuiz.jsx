@@ -1,22 +1,25 @@
 import { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
-import { quizQuestions } from "../data/lessonScript.js";
+import { quizQuestionsByLevel } from "../data/lessonScript.js";
 import FractionBar from "./FractionBar.jsx";
 
 const BAR_WIDTH = 120;
 const BAR_HEIGHT = 48;
-const TOTAL_QUESTIONS = quizQuestions.length;
 
-function choiceToBars(choice, questionId) {
-  if (questionId === "q1") {
-    if (choice === "1/4") return [{ fraction: "fourth", count: 1 }];
-    if (choice === "2/4") return [{ fraction: "fourth", count: 2 }];
-    if (choice === "3/4") return [{ fraction: "fourth", count: 3 }];
+const DENOM_TO_FRACTION = { 1: "whole", 2: "half", 3: "third", 4: "fourth", 6: "sixth", 8: "eighth" };
+
+function choiceToBars(choice) {
+  // Parse "3/4" style fractions
+  const fracMatch = choice.match(/^(\d+)\/(\d+)$/);
+  if (fracMatch) {
+    const num = parseInt(fracMatch[1], 10);
+    const denom = parseInt(fracMatch[2], 10);
+    const fraction = DENOM_TO_FRACTION[denom];
+    if (fraction) return [{ fraction, count: num }];
   }
-  if (questionId === "q4") {
-    const n = parseInt(choice, 10);
-    if (!isNaN(n)) return [{ fraction: "eighth", count: n }];
-  }
+  // Parse plain numbers (e.g. "2" meaning count of pieces)
+  const n = parseInt(choice, 10);
+  if (!isNaN(n) && choice.trim() === String(n)) return [{ fraction: "eighth", count: n }];
   return [];
 }
 
@@ -34,7 +37,9 @@ const choiceBtnBase = {
   transition: "all 200ms ease",
 };
 
-export default function CheckQuiz({ onComplete }) {
+export default function CheckQuiz({ onComplete, difficulty = "4" }) {
+  const quizQuestions = quizQuestionsByLevel[difficulty] || quizQuestionsByLevel["4"];
+  const TOTAL_QUESTIONS = quizQuestions.length;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [lastCorrect, setLastCorrect] = useState(false);
@@ -297,8 +302,9 @@ export default function CheckQuiz({ onComplete }) {
         {q.type === "multiple_choice" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
             {q.choices.map((choice) => {
-              const bars = q.showBars ? choiceToBars(choice, q.id) : [];
-              const denom = bars[0]?.fraction === "fourth" ? 4 : 8;
+              const bars = q.showBars ? choiceToBars(choice) : [];
+              const FRAC_DENOMS = { whole: 1, half: 2, third: 3, fourth: 4, sixth: 6, eighth: 8 };
+              const denom = bars[0] ? (FRAC_DENOMS[bars[0].fraction] || 4) : 4;
               const pieceW = bars[0] ? BAR_WIDTH / denom : 0;
               return (
                 <button

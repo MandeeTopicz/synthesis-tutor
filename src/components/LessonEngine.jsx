@@ -1,150 +1,22 @@
 import { useReducer, useEffect, useCallback, useState } from "react";
-import { lessonScript } from "../data/lessonScript.js";
 import { getClaudeHint } from "../lib/claudeTutor.js";
 import LessonHeader from "./LessonHeader.jsx";
 import TutorOverlay from "./TutorOverlay.jsx";
-import AdvanceButton from "./AdvanceButton.jsx";
 import FractionWorkspace from "./FractionWorkspace.jsx";
 import CheckQuiz from "./CheckQuiz.jsx";
-
-const scriptById = Object.fromEntries(lessonScript.map((n) => [n.id, n]));
-
-const firstNode = lessonScript[0];
-function getInitialState(selectedAvatar) {
-  const greeting = firstNode.tutorMessage.replace(
-    /^Hi!/,
-    `Hi ${selectedAvatar || "there"}!`
-  );
-  return {
-    currentNodeId: "node_01",
-    phase: "explore",
-    messages: [
-      {
-        id: "msg-node_01-init",
-        sender: "tutor",
-        text: greeting,
-        emotion: firstNode.tutorEmotion,
-      },
-    ],
-    attemptCount: 0,
-    workspacePieces: [],
-    workspaceFills: false,
-    isLoadingHint: false,
-    quizScore: 0,
-    quizComplete: false,
-    highlightPiece: null,
-    clearWorkspaceCounter: 0,
-  };
-}
-
-function lessonReducer(state, action) {
-  switch (action.type) {
-    case "ADVANCE_NODE": {
-      const nextId = action.payload;
-      if (nextId === "quiz_start") {
-        return {
-          ...state,
-          phase: "quiz",
-          currentNodeId: null,
-          attemptCount: 0,
-          messages: [],
-          clearWorkspaceCounter: state.clearWorkspaceCounter + 1,
-        };
-      }
-      const node = scriptById[nextId];
-      const phase = node?.phase ?? state.phase;
-      const newMsg = node
-        ? { id: `msg-${nextId}-${Date.now()}`, sender: "tutor", text: node.tutorMessage, emotion: node.tutorEmotion }
-        : null;
-      return {
-        ...state,
-        currentNodeId: nextId,
-        phase,
-        messages: newMsg ? [...state.messages, newMsg] : state.messages,
-        attemptCount: 0,
-        workspacePieces: [],
-        workspaceFills: false,
-        clearWorkspaceCounter: state.clearWorkspaceCounter + 1,
-      };
-    }
-    case "WRONG_ANSWER":
-      return { ...state, attemptCount: state.attemptCount + 1 };
-    case "SET_HINT_LOADING":
-      return { ...state, isLoadingHint: action.payload };
-    case "RECEIVE_HINT":
-      return {
-        ...state,
-        isLoadingHint: false,
-        messages:
-          action.payload === ""
-          ? state.messages
-          : [
-              ...state.messages,
-              { id: `hint-${Date.now()}`, sender: "tutor", text: action.payload, emotion: "encouraging" },
-            ],
-      };
-    case "ADD_MESSAGE":
-      return {
-        ...state,
-        messages: [...state.messages, action.payload],
-      };
-    case "UPDATE_WORKSPACE":
-      return {
-        ...state,
-        workspacePieces: action.payload.pieces ?? state.workspacePieces,
-        workspaceFills: action.payload.fills ?? state.workspaceFills,
-      };
-    case "START_QUIZ":
-      return { ...state, phase: "quiz" };
-    case "QUIZ_ANSWER":
-      return { ...state, quizScore: state.quizScore + (action.payload.correct ? 1 : 0) };
-    case "QUIZ_COMPLETE":
-      return { ...state, quizComplete: true };
-    case "SET_HIGHLIGHT_PIECE":
-      return { ...state, highlightPiece: action.payload };
-    case "CLEAR_WORKSPACE":
-      return { ...state, clearWorkspaceCounter: state.clearWorkspaceCounter + 1 };
-    default:
-      return state;
-  }
-}
-
-function validateAnswer(node, answer, state) {
-  if (!node) return false;
-  switch (node.expectsAction) {
-    case "free_explore":
-      return true;
-    case "answer_number": {
-      const correct = String(node.correctAnswer ?? "").trim();
-      const given = String(answer ?? "").trim();
-      return correct === given;
-    }
-    case "answer_choice":
-      return node.correctAnswer === answer;
-    case "fill_whole": {
-      const expected = node.correctAnswer;
-      if (!expected || !expected.pieces || !expected.fills) return false;
-      const pieces = state.workspacePieces || [];
-      const fills = state.workspaceFills;
-      if (!fills) return false;
-      const sortedExpected = [...expected.pieces].sort();
-      const sortedGot = [...pieces].sort();
-      if (sortedExpected.length !== sortedGot.length) return false;
-      return sortedExpected.every((p, i) => sortedGot[i] === p);
-    }
-    default:
-      return false;
-  }
-}
+import { getScriptForLevel, getInitialState, lessonReducer, validateAnswer } from "./lessonReducer.js";
 
 export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange, onQuizComplete }) {
   const [state, dispatch] = useReducer(
     lessonReducer,
-    selectedAvatar,
+    { selectedAvatar, difficulty },
     getInitialState
   );
   const [feedback, setFeedback] = useState(null);
-  const currentNode = state.currentNodeId ? scriptById[state.currentNodeId] : null;
+
+  const script = getScriptForLevel(state.difficulty);
+  const scriptByIdLocal = Object.fromEntries(script.map((n) => [n.id, n]));
+  const currentNode = state.currentNodeId ? scriptByIdLocal[state.currentNodeId] : null;
 
   useEffect(() => {
     onPhaseChange?.(state.phase);
@@ -176,7 +48,7 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
           }, 1000);
         } else {
           setFeedback("wrong");
-          setTimeout(() => setFeedback(null), 600);
+          setTimeout(() => setFeedback(null), 2000);
           dispatch({ type: "WRONG_ANSWER" });
           const nextAttemptCount = state.attemptCount + 1;
           if (nextAttemptCount >= 2) {
@@ -207,7 +79,7 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
         }, 1000);
       } else {
         setFeedback("wrong");
-        setTimeout(() => setFeedback(null), 600);
+        setTimeout(() => setFeedback(null), 2000);
         dispatch({ type: "WRONG_ANSWER" });
         const nextAttemptCount = state.attemptCount + 1;
         if (nextAttemptCount >= 2) {
@@ -234,9 +106,6 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
   }, []);
 
   const handleClearWorkspaceAck = useCallback(() => {}, []);
-
-  const isFreeExplore = currentNode?.expectsAction === "free_explore";
-  const showAdvanceButton = isFreeExplore;
 
   return (
     <div
@@ -277,11 +146,8 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
           feedback={feedback}
         />
       )}
-      {state.phase !== "quiz" && showAdvanceButton && (
-        <AdvanceButton onAdvance={() => handleAnswer("next")} />
-      )}
       {state.phase === "quiz" && (
-        <CheckQuiz onComplete={onQuizComplete} />
+        <CheckQuiz onComplete={onQuizComplete} difficulty={state.difficulty} />
       )}
     </div>
   );

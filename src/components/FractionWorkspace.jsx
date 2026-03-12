@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import FractionBar, { FRACTION_COLORS } from "./FractionBar.jsx";
+import { checkFillsWhole } from "../lib/alignmentCheck.js";
 
 const TRAY_FRACTIONS = ["whole", "half", "third", "fourth", "sixth", "eighth"];
 const DENOMINATORS = {
@@ -68,11 +69,9 @@ export default function FractionWorkspace({
   };
 
   useEffect(() => {
-    const fills =
-      localPlaced.length > 0 &&
-      Math.abs(localPlaced.reduce((sum, { fraction }) => sum + 1 / (DENOMINATORS[fraction] ?? 1), 0) - 1) < 0.01;
+    const { fills } = checkFillsWhole(localPlaced, wholeWidth, pieceHeight);
     onPiecesPlaced?.({ pieces: localPlaced.map((p) => p.fraction), fills: !!fills });
-  }, [localPlaced, onPiecesPlaced]);
+  }, [localPlaced, onPiecesPlaced, pieceHeight, wholeWidth]);
 
   const handleDragStart = (info) => {
     dragRef.current = info;

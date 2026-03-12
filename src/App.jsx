@@ -5,7 +5,7 @@ import LessonEngine from "./components/LessonEngine.jsx";
 export default function App() {
   const [gameState, setGameState] = useState("landing");
   const [selectedAvatar, setSelectedAvatar] = useState("Sunny");
-  const [difficulty, setDifficulty] = useState("explorer");
+  const [difficulty, setDifficulty] = useState("1-2");
   const [lessonPhase, setLessonPhase] = useState("explore");
 
   const handlePhaseChange = useCallback((phase) => {
@@ -15,7 +15,7 @@ export default function App() {
   const handleQuizComplete = useCallback(() => {
     setGameState("landing");
     setSelectedAvatar("Sunny");
-    setDifficulty("explorer");
+    setDifficulty("1-2");
   }, []);
 
   if (gameState === "landing") {

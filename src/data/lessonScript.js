@@ -1,6 +1,349 @@
-export const lessonScript = [
-  // ── PHASE 1: EXPLORE (nodes 1-4) ──────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// Lesson scripts & quiz questions keyed by grade band
+// "1-2"  → Introductory (halves & quarters only, simple language)
+// "3"    → Fraction sense (naming, unit fractions, simple comparisons)
+// "4"    → Equivalence & comparison (current PRD lesson, canonical)
+// "5-6"  → Operations (adding/subtracting fractions)
+// ═══════════════════════════════════════════════════════════════════
 
+// ── 1st–2nd GRADE: INTRODUCTORY ──────────────────────────────────
+
+const lessonScript_1_2 = [
+  {
+    id: "node_01",
+    phase: "explore",
+    tutorMessage: "Hi! I'm Mia! 👋 Welcome to Fraction Fun! See those colorful pieces at the bottom? Go ahead and drag them around — just play and have fun!",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "node_02" },
+  },
+  {
+    id: "node_02",
+    phase: "explore",
+    tutorMessage: "Great job exploring! 🎉 See the big purple bar at the top? That is ONE WHOLE. A fraction is a piece of that whole. Can you drag TWO orange pieces and line them up to fill the whole bar?",
+    tutorEmotion: "happy",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "half"], fills: true },
+    hint: "Find the orange pieces that say 1/2 in the tray and drag two of them up!",
+    branches: { correct: "node_03", incorrect: "node_02_retry" },
+  },
+  {
+    id: "node_02_retry",
+    phase: "explore",
+    tutorMessage: "Almost! Look for the orange pieces — they say '1/2' on them. Drag two of them up and put them next to each other!",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "half"], fills: true },
+    hint: "The orange pieces are halves. You need two of them side by side!",
+    branches: { correct: "node_03", incorrect: "node_03" },
+  },
+  {
+    id: "node_03",
+    phase: "learn",
+    tutorMessage: "Awesome! 🎊 Two halves make one whole! Each orange piece is called ONE HALF. When you cut something into 2 equal parts, each part is a half. How many halves make a whole?",
+    tutorEmotion: "excited",
+    expectsAction: "answer_number",
+    correctAnswer: "2",
+    hint: "You just did it — count the orange pieces you used!",
+    branches: { correct: "node_04", incorrect: "node_03_retry" },
+  },
+  {
+    id: "node_03_retry",
+    phase: "learn",
+    tutorMessage: "Look at the pieces you placed — how many orange halves did it take to fill the whole bar?",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_number",
+    correctAnswer: "2",
+    hint: "Count the orange pieces: one... two!",
+    branches: { correct: "node_04", incorrect: "node_04" },
+  },
+  {
+    id: "node_04",
+    phase: "learn",
+    tutorMessage: "That's right — 2 halves! 🌟 Now let's try something new. Can you fill the whole bar using ONLY the blue pieces? Those are called QUARTERS (or fourths).",
+    tutorEmotion: "thinking",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["fourth", "fourth", "fourth", "fourth"], fills: true },
+    hint: "Drag the blue 1/4 pieces up one at a time until the bar is full!",
+    branches: { correct: "node_05", incorrect: "node_04_retry" },
+  },
+  {
+    id: "node_04_retry",
+    phase: "learn",
+    tutorMessage: "Keep going! Add more blue pieces until there are no gaps in the bar.",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["fourth", "fourth", "fourth", "fourth"], fills: true },
+    hint: "You need four blue pieces to fill the whole bar!",
+    branches: { correct: "node_05", incorrect: "node_05" },
+  },
+  {
+    id: "node_05",
+    phase: "learn",
+    tutorMessage: "You did it! 🎉 It takes FOUR quarters to make a whole! A quarter means you cut something into 4 equal parts. Which is bigger — a half or a quarter?",
+    tutorEmotion: "happy",
+    expectsAction: "answer_choice",
+    correctAnswer: "a half",
+    choices: ["a half", "a quarter", "they are the same"],
+    hint: "Look at the pieces — which one is longer, the orange or the blue?",
+    branches: { correct: "node_06", incorrect: "node_05_retry" },
+  },
+  {
+    id: "node_05_retry",
+    phase: "learn",
+    tutorMessage: "Compare the orange piece to the blue piece. Which one takes up more space?",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "a half",
+    choices: ["a half", "a quarter", "they are the same"],
+    hint: "The orange half is bigger than the blue quarter!",
+    branches: { correct: "node_06", incorrect: "node_06" },
+  },
+  {
+    id: "node_06",
+    phase: "learn",
+    tutorMessage: "Right! A half is BIGGER than a quarter! 🧠 When you cut something into MORE pieces, each piece gets SMALLER. Two big pieces vs four small pieces — but they both fill the whole bar! Ready for a quick quiz?",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "node_quiz_intro" },
+  },
+  {
+    id: "node_quiz_intro",
+    phase: "learn",
+    tutorMessage: "Great job learning about halves and quarters! 🌟 Now let's see what you remember. I have 5 fun questions for you. You need 4 right to finish. You've got this! 💪",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "quiz_start" },
+  },
+];
+
+const quizQuestions_1_2 = [
+  {
+    id: "q1",
+    type: "multiple_choice",
+    question: "How many halves make one whole?",
+    choices: ["1", "2", "3"],
+    correctAnswer: "2",
+    showBars: false,
+  },
+  {
+    id: "q2",
+    type: "multiple_choice",
+    question: "How many quarters make one whole?",
+    choices: ["2", "3", "4"],
+    correctAnswer: "4",
+    showBars: false,
+  },
+  {
+    id: "q3",
+    type: "true_false",
+    question: "True or False: A half is bigger than a quarter.",
+    correctAnswer: "true",
+  },
+  {
+    id: "q4",
+    type: "multiple_choice",
+    question: "If you cut a pizza into 2 equal slices, each slice is called:",
+    choices: ["a whole", "a half", "a quarter"],
+    correctAnswer: "a half",
+    showBars: false,
+  },
+  {
+    id: "q5",
+    type: "true_false",
+    question: "True or False: When you cut something into more pieces, each piece gets bigger.",
+    correctAnswer: "false",
+  },
+];
+
+// ── 3rd GRADE: FRACTION SENSE ─────────────────────────────────────
+
+const lessonScript_3 = [
+  {
+    id: "node_01",
+    phase: "explore",
+    tutorMessage: "Hi! I'm Mia, your math guide! 👋 Welcome to the Fraction Workshop! You've got fraction pieces in the tray below. Drag them around and see what you notice about their sizes!",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "node_02" },
+  },
+  {
+    id: "node_02",
+    phase: "explore",
+    tutorMessage: "Nice exploring! 🎉 Each piece is a UNIT FRACTION — it's one equal part of the whole bar. The number on the bottom (the denominator) tells you how many parts the whole is split into. Can you fill the whole bar with two 1/2 pieces?",
+    tutorEmotion: "happy",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "half"], fills: true },
+    hint: "Drag two orange 1/2 pieces and line them up!",
+    branches: { correct: "node_03", incorrect: "node_02_retry" },
+  },
+  {
+    id: "node_02_retry",
+    phase: "explore",
+    tutorMessage: "Almost! The orange pieces are halves — you need exactly two of them side by side to fill the bar.",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "half"], fills: true },
+    hint: "Look for the orange 1/2 pieces at the bottom!",
+    branches: { correct: "node_03", incorrect: "node_03" },
+  },
+  {
+    id: "node_03",
+    phase: "explore",
+    tutorMessage: "Perfect! 2 halves = 1 whole! 🎊 Now try filling the bar with ONLY 1/3 pieces (the green ones). How many will you need?",
+    tutorEmotion: "thinking",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["third", "third", "third"], fills: true },
+    hint: "Try adding green 1/3 pieces one at a time until the bar is full.",
+    branches: { correct: "node_04", incorrect: "node_03_retry" },
+  },
+  {
+    id: "node_03_retry",
+    phase: "explore",
+    tutorMessage: "Keep going — add more green 1/3 pieces until there are no gaps!",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["third", "third", "third"], fills: true },
+    hint: "You need three 1/3 pieces to fill the whole bar.",
+    branches: { correct: "node_04", incorrect: "node_04" },
+  },
+  {
+    id: "node_04",
+    phase: "learn",
+    tutorMessage: "Three thirds make a whole! 🧠 Notice: 2 halves vs 3 thirds vs 4 fourths. The bigger the denominator, the more pieces you need. Which fraction piece is the LARGEST — 1/2, 1/3, or 1/4?",
+    tutorEmotion: "thinking",
+    expectsAction: "answer_choice",
+    correctAnswer: "1/2",
+    choices: ["1/2", "1/3", "1/4"],
+    hint: "Compare the piece sizes — which one is the longest?",
+    branches: { correct: "node_05", incorrect: "node_04_retry" },
+  },
+  {
+    id: "node_04_retry",
+    phase: "learn",
+    tutorMessage: "Look at the tray pieces. The orange 1/2 piece, the green 1/3 piece, and the blue 1/4 piece — which is longest?",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "1/2",
+    choices: ["1/2", "1/3", "1/4"],
+    hint: "Fewer parts means each part is bigger! 1/2 is the biggest.",
+    branches: { correct: "node_05", incorrect: "node_05" },
+  },
+  {
+    id: "node_05",
+    phase: "learn",
+    tutorMessage: "Right! 1/2 is the biggest! 🌟 Fewer pieces = bigger pieces. Now, which is smaller: 1/6 or 1/8?",
+    tutorEmotion: "happy",
+    expectsAction: "answer_choice",
+    correctAnswer: "1/8",
+    choices: ["1/6", "1/8", "they are the same"],
+    hint: "8 pieces means each piece is smaller than 6 pieces. Compare the purple and pink pieces!",
+    branches: { correct: "node_06", incorrect: "node_05_retry" },
+  },
+  {
+    id: "node_05_retry",
+    phase: "learn",
+    tutorMessage: "Think about it: if you cut something into 8 slices vs 6 slices, which slices are tinier?",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "1/8",
+    choices: ["1/6", "1/8", "they are the same"],
+    hint: "More slices = smaller slices! 1/8 is smaller than 1/6.",
+    branches: { correct: "node_06", incorrect: "node_06" },
+  },
+  {
+    id: "node_06",
+    phase: "learn",
+    tutorMessage: "Exactly! 1/8 is smaller because 8 parts means each part is tinier. 🔥 Here's a cool one: can you fill the whole bar using 1/2 AND 1/4 pieces together? Try one half and two fourths!",
+    tutorEmotion: "excited",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "fourth", "fourth"], fills: true },
+    hint: "Drag one orange 1/2 piece and two blue 1/4 pieces. Line them all up!",
+    branches: { correct: "node_07", incorrect: "node_06_retry" },
+  },
+  {
+    id: "node_06_retry",
+    phase: "learn",
+    tutorMessage: "Try one orange half plus two blue quarters — see if they fill the whole bar together!",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "fourth", "fourth"], fills: true },
+    hint: "1/2 + 1/4 + 1/4 should fill the bar completely!",
+    branches: { correct: "node_07", incorrect: "node_07" },
+  },
+  {
+    id: "node_07",
+    phase: "learn",
+    tutorMessage: "Amazing! 🎯 One half plus two quarters equals one whole! That means 1/2 + 1/4 + 1/4 = 1. You can mix fraction sizes to build a whole. That's fraction sense! 🏆 Ready for a quiz?",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "node_quiz_intro" },
+  },
+  {
+    id: "node_quiz_intro",
+    phase: "learn",
+    tutorMessage: "Great work today! 🌟 You learned about naming fractions, comparing sizes, and building a whole. Now let's test what you know — 5 questions, get 4 right to finish! 💪",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "quiz_start" },
+  },
+];
+
+const quizQuestions_3 = [
+  {
+    id: "q1",
+    type: "multiple_choice",
+    question: "Which fraction is the LARGEST?",
+    choices: ["1/3", "1/4", "1/2"],
+    correctAnswer: "1/2",
+    showBars: true,
+  },
+  {
+    id: "q2",
+    type: "multiple_choice",
+    question: "How many 1/3 pieces fill one whole?",
+    choices: ["2", "3", "4"],
+    correctAnswer: "3",
+    showBars: false,
+  },
+  {
+    id: "q3",
+    type: "true_false",
+    question: "True or False: 1/8 is bigger than 1/6.",
+    correctAnswer: "false",
+  },
+  {
+    id: "q4",
+    type: "fill_blank",
+    question: "1/2 + 1/4 + 1/4 = ?",
+    prompt: "What do these fractions add up to? (write a number)",
+    correctAnswer: "1",
+  },
+  {
+    id: "q5",
+    type: "multiple_choice",
+    question: "Which fraction is the SMALLEST?",
+    choices: ["1/2", "1/6", "1/4"],
+    correctAnswer: "1/6",
+    showBars: true,
+  },
+];
+
+// ── 4th GRADE: EQUIVALENCE & COMPARISON (canonical PRD lesson) ────
+
+const lessonScript_4 = [
   {
     id: "node_01",
     phase: "explore",
@@ -9,7 +352,7 @@ export const lessonScript = [
     expectsAction: "free_explore",
     correctAnswer: null,
     hint: null,
-    branches: { advance: "node_02" }
+    branches: { advance: "node_02" },
   },
   {
     id: "node_02",
@@ -19,7 +362,7 @@ export const lessonScript = [
     expectsAction: "fill_whole",
     correctAnswer: { pieces: ["half", "half"], fills: true },
     hint: "Try dragging two of the orange 1/2 pieces from the tray at the bottom!",
-    branches: { correct: "node_03", incorrect: "node_02_retry" }
+    branches: { correct: "node_03", incorrect: "node_02_retry" },
   },
   {
     id: "node_02_retry",
@@ -29,7 +372,7 @@ export const lessonScript = [
     expectsAction: "fill_whole",
     correctAnswer: { pieces: ["half", "half"], fills: true },
     hint: "Look for the orange pieces in the tray at the bottom. Drag two of them up!",
-    branches: { correct: "node_03", incorrect: "node_03" }
+    branches: { correct: "node_03", incorrect: "node_03" },
   },
   {
     id: "node_03",
@@ -39,7 +382,7 @@ export const lessonScript = [
     expectsAction: "free_explore",
     correctAnswer: null,
     hint: null,
-    branches: { advance: "node_04" }
+    branches: { advance: "node_04" },
   },
   {
     id: "node_04",
@@ -47,9 +390,9 @@ export const lessonScript = [
     tutorMessage: "Now try this: Can you fill the whole bar using only the BLUE pieces (those are the 1/4 pieces)? How many do you need?",
     tutorEmotion: "thinking",
     expectsAction: "fill_whole",
-    correctAnswer: { pieces: ["fourth","fourth","fourth","fourth"], fills: true },
+    correctAnswer: { pieces: ["fourth", "fourth", "fourth", "fourth"], fills: true },
     hint: "You'll need more than 2! Try adding blue 1/4 pieces one at a time until the bar is full.",
-    branches: { correct: "node_05", incorrect: "node_04_retry" }
+    branches: { correct: "node_05", incorrect: "node_04_retry" },
   },
   {
     id: "node_04_retry",
@@ -57,13 +400,10 @@ export const lessonScript = [
     tutorMessage: "Not quite yet — the bar isn't completely filled. Keep adding blue 1/4 pieces until there are no gaps!",
     tutorEmotion: "encouraging",
     expectsAction: "fill_whole",
-    correctAnswer: { pieces: ["fourth","fourth","fourth","fourth"], fills: true },
+    correctAnswer: { pieces: ["fourth", "fourth", "fourth", "fourth"], fills: true },
     hint: "Count how many blue pieces fit — keep going until the whole bar is covered!",
-    branches: { correct: "node_05", incorrect: "node_05" }
+    branches: { correct: "node_05", incorrect: "node_05" },
   },
-
-  // ── PHASE 2: LEARN (nodes 5-14) ───────────────────────────────────
-
   {
     id: "node_05",
     phase: "learn",
@@ -72,7 +412,7 @@ export const lessonScript = [
     expectsAction: "answer_number",
     correctAnswer: "2",
     hint: "Try placing 1/4 pieces next to a 1/2 piece in the workspace and see when they match!",
-    branches: { correct: "node_06", incorrect: "node_05_retry" }
+    branches: { correct: "node_06", incorrect: "node_05_retry" },
   },
   {
     id: "node_05_retry",
@@ -82,7 +422,7 @@ export const lessonScript = [
     expectsAction: "answer_number",
     correctAnswer: "2",
     hint: "Look at how the lengths compare — when do the blue pieces match the orange piece exactly?",
-    branches: { correct: "node_06", incorrect: "node_06" }
+    branches: { correct: "node_06", incorrect: "node_06" },
   },
   {
     id: "node_06",
@@ -93,7 +433,7 @@ export const lessonScript = [
     correctAnswer: "equivalent fractions",
     choices: ["equivalent fractions", "equal numbers", "fraction twins"],
     hint: "It starts with 'equivalent' — I just told you! 😄",
-    branches: { correct: "node_07", incorrect: "node_06_retry" }
+    branches: { correct: "node_07", incorrect: "node_06_retry" },
   },
   {
     id: "node_06_retry",
@@ -104,7 +444,7 @@ export const lessonScript = [
     correctAnswer: "equivalent fractions",
     choices: ["equivalent fractions", "equal numbers", "fraction twins"],
     hint: "The word we're looking for is 'equivalent' — which answer has that word?",
-    branches: { correct: "node_07", incorrect: "node_07" }
+    branches: { correct: "node_07", incorrect: "node_07" },
   },
   {
     id: "node_07",
@@ -114,7 +454,7 @@ export const lessonScript = [
     expectsAction: "answer_number",
     correctAnswer: "2",
     hint: "Try placing the green 1/3 piece and then adding purple 1/6 pieces next to it!",
-    branches: { correct: "node_08", incorrect: "node_07_retry" }
+    branches: { correct: "node_08", incorrect: "node_07_retry" },
   },
   {
     id: "node_07_retry",
@@ -124,7 +464,7 @@ export const lessonScript = [
     expectsAction: "answer_number",
     correctAnswer: "2",
     hint: "Keep adding 1/6 pieces until the length matches the 1/3 piece exactly.",
-    branches: { correct: "node_08", incorrect: "node_08" }
+    branches: { correct: "node_08", incorrect: "node_08" },
   },
   {
     id: "node_08",
@@ -134,7 +474,7 @@ export const lessonScript = [
     expectsAction: "answer_number",
     correctAnswer: "2",
     hint: "Use the pieces to check! Place a blue 1/4 piece and add pink 1/8 pieces.",
-    branches: { correct: "node_09", incorrect: "node_08_retry" }
+    branches: { correct: "node_09", incorrect: "node_08_retry" },
   },
   {
     id: "node_08_retry",
@@ -144,7 +484,7 @@ export const lessonScript = [
     expectsAction: "answer_number",
     correctAnswer: "2",
     hint: "How many pink 1/8 pieces fit inside one blue 1/4 piece?",
-    branches: { correct: "node_09", incorrect: "node_09" }
+    branches: { correct: "node_09", incorrect: "node_09" },
   },
   {
     id: "node_09",
@@ -155,7 +495,7 @@ export const lessonScript = [
     correctAnswer: "it doubled",
     choices: ["it doubled", "it stayed the same", "it tripled"],
     hint: "1/2 needed 2 pieces of 1/4... 1/3 needed 2 pieces of 1/6... what did the number of pieces do?",
-    branches: { correct: "node_10", incorrect: "node_09_retry" }
+    branches: { correct: "node_10", incorrect: "node_09_retry" },
   },
   {
     id: "node_09_retry",
@@ -166,7 +506,7 @@ export const lessonScript = [
     correctAnswer: "it doubled",
     choices: ["it doubled", "it stayed the same", "it tripled"],
     hint: "1 piece became 2 pieces every time — what do we call that?",
-    branches: { correct: "node_10", incorrect: "node_10" }
+    branches: { correct: "node_10", incorrect: "node_10" },
   },
   {
     id: "node_10",
@@ -176,7 +516,7 @@ export const lessonScript = [
     expectsAction: "free_explore",
     correctAnswer: null,
     hint: null,
-    branches: { advance: "node_quiz_intro" }
+    branches: { advance: "node_quiz_intro" },
   },
   {
     id: "node_quiz_intro",
@@ -186,12 +526,11 @@ export const lessonScript = [
     expectsAction: "free_explore",
     correctAnswer: null,
     hint: null,
-    branches: { advance: "quiz_start" }
-  }
+    branches: { advance: "quiz_start" },
+  },
 ];
 
-// ── QUIZ QUESTIONS (separate array, used by CheckQuiz.jsx) ──────────
-export const quizQuestions = [
+const quizQuestions_4 = [
   {
     id: "q1",
     type: "multiple_choice",
@@ -229,5 +568,250 @@ export const quizQuestions = [
     choices: ["1/2 and 1/4", "2/4 and 1/2", "1/3 and 1/4"],
     correctAnswer: "2/4 and 1/2",
     showBars: false,
-  }
+  },
 ];
+
+// ── 5th–6th GRADE: OPERATIONS ─────────────────────────────────────
+
+const lessonScript_5_6 = [
+  {
+    id: "node_01",
+    phase: "explore",
+    tutorMessage: "Hi! I'm Mia, your math guide! 👋 Today we're going to learn how to ADD and SUBTRACT fractions using these fraction bars. Take a moment to explore the pieces — notice how they relate to each other in size.",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "node_02" },
+  },
+  {
+    id: "node_02",
+    phase: "explore",
+    tutorMessage: "Great! Let's start with something you know. Fill the whole bar with two 1/2 pieces to remind ourselves that 1/2 + 1/2 = 1.",
+    tutorEmotion: "happy",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "half"], fills: true },
+    hint: "Drag two orange 1/2 pieces and line them up side by side.",
+    branches: { correct: "node_03", incorrect: "node_02_retry" },
+  },
+  {
+    id: "node_02_retry",
+    phase: "explore",
+    tutorMessage: "Line up two orange 1/2 pieces to fill the bar. This shows 1/2 + 1/2 = 1.",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["half", "half"], fills: true },
+    hint: "You need exactly two orange halves side by side.",
+    branches: { correct: "node_03", incorrect: "node_03" },
+  },
+  {
+    id: "node_03",
+    phase: "learn",
+    tutorMessage: "Perfect! 1/2 + 1/2 = 1. 🎉 Adding fractions with the SAME denominator is straightforward — you just add the numerators. What is 1/4 + 2/4?",
+    tutorEmotion: "thinking",
+    expectsAction: "answer_choice",
+    correctAnswer: "3/4",
+    choices: ["2/4", "3/4", "3/8"],
+    hint: "Same denominator (4), so add the top numbers: 1 + 2 = ?. Keep the denominator!",
+    branches: { correct: "node_04", incorrect: "node_03_retry" },
+  },
+  {
+    id: "node_03_retry",
+    phase: "learn",
+    tutorMessage: "When denominators match, just add the numerators (top numbers). 1/4 + 2/4 → the denominator stays 4, and 1 + 2 = ?",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "3/4",
+    choices: ["2/4", "3/4", "3/8"],
+    hint: "1 + 2 = 3, and the denominator stays 4. So the answer is 3/4!",
+    branches: { correct: "node_04", incorrect: "node_04" },
+  },
+  {
+    id: "node_04",
+    phase: "learn",
+    tutorMessage: "That's right — 3/4! 🌟 Now can you prove it with the pieces? Fill the bar using three 1/4 pieces and one more 1/4 piece. That shows 3/4 + 1/4 = 1 whole!",
+    tutorEmotion: "happy",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["fourth", "fourth", "fourth", "fourth"], fills: true },
+    hint: "Drag four blue 1/4 pieces to fill the bar — this proves 4/4 = 1.",
+    branches: { correct: "node_05", incorrect: "node_04_retry" },
+  },
+  {
+    id: "node_04_retry",
+    phase: "learn",
+    tutorMessage: "Keep adding blue 1/4 pieces until the bar is completely full!",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["fourth", "fourth", "fourth", "fourth"], fills: true },
+    hint: "You need four 1/4 pieces to make one whole.",
+    branches: { correct: "node_05", incorrect: "node_05" },
+  },
+  {
+    id: "node_05",
+    phase: "learn",
+    tutorMessage: "4/4 = 1 whole! Now let's try subtraction. If you have 3/4 and take away 1/4, what do you get?",
+    tutorEmotion: "thinking",
+    expectsAction: "answer_choice",
+    correctAnswer: "2/4",
+    choices: ["1/4", "2/4", "2/8"],
+    hint: "Same denominator, so subtract the numerators: 3 − 1 = ?. Keep the 4.",
+    branches: { correct: "node_06", incorrect: "node_05_retry" },
+  },
+  {
+    id: "node_05_retry",
+    phase: "learn",
+    tutorMessage: "Subtraction works just like addition with same denominators — subtract the top numbers. 3 − 1 = ?, and the denominator stays 4.",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "2/4",
+    choices: ["1/4", "2/4", "2/8"],
+    hint: "3 − 1 = 2. The denominator stays 4. So it's 2/4.",
+    branches: { correct: "node_06", incorrect: "node_06" },
+  },
+  {
+    id: "node_06",
+    phase: "learn",
+    tutorMessage: "Right, 2/4! And we know 2/4 = 1/2 — that's an equivalent fraction! 🔥 Now the harder part: what about UNLIKE denominators? What is 1/2 + 1/4?",
+    tutorEmotion: "excited",
+    expectsAction: "answer_choice",
+    correctAnswer: "3/4",
+    choices: ["2/6", "3/4", "2/4"],
+    hint: "Think: 1/2 is the same as 2/4. So 2/4 + 1/4 = ?",
+    branches: { correct: "node_07", incorrect: "node_06_retry" },
+  },
+  {
+    id: "node_06_retry",
+    phase: "learn",
+    tutorMessage: "To add unlike denominators, first make them the SAME. We know 1/2 = 2/4. Now it's 2/4 + 1/4. Add the numerators!",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "3/4",
+    choices: ["2/6", "3/4", "2/4"],
+    hint: "2/4 + 1/4 = 3/4. Convert to a common denominator first!",
+    branches: { correct: "node_07", incorrect: "node_07" },
+  },
+  {
+    id: "node_07",
+    phase: "learn",
+    tutorMessage: "Excellent — 3/4! 🎯 The trick is finding a COMMON DENOMINATOR first. Let's try one more: what is 1/3 + 1/6?",
+    tutorEmotion: "thinking",
+    expectsAction: "answer_choice",
+    correctAnswer: "3/6",
+    choices: ["2/9", "2/6", "3/6"],
+    hint: "1/3 = 2/6 (double the top and bottom). So 2/6 + 1/6 = ?",
+    branches: { correct: "node_08", incorrect: "node_07_retry" },
+  },
+  {
+    id: "node_07_retry",
+    phase: "learn",
+    tutorMessage: "Convert 1/3 to sixths: 1/3 = 2/6. Now add: 2/6 + 1/6 = ?",
+    tutorEmotion: "encouraging",
+    expectsAction: "answer_choice",
+    correctAnswer: "3/6",
+    choices: ["2/9", "2/6", "3/6"],
+    hint: "2 + 1 = 3, denominator stays 6. That's 3/6!",
+    branches: { correct: "node_08", incorrect: "node_08" },
+  },
+  {
+    id: "node_08",
+    phase: "learn",
+    tutorMessage: "3/6 — and that simplifies to 1/2! 🧠 Let's prove it: fill the whole bar using one 1/3 piece, one 1/6 piece, and one 1/2 piece.",
+    tutorEmotion: "happy",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["third", "sixth", "half"], fills: true },
+    hint: "Drag one green 1/3, one purple 1/6, and one orange 1/2 and line them up!",
+    branches: { correct: "node_09", incorrect: "node_08_retry" },
+  },
+  {
+    id: "node_08_retry",
+    phase: "learn",
+    tutorMessage: "Try one green (1/3) + one purple (1/6) + one orange (1/2). Line them all up to fill the bar!",
+    tutorEmotion: "encouraging",
+    expectsAction: "fill_whole",
+    correctAnswer: { pieces: ["third", "sixth", "half"], fills: true },
+    hint: "1/3 + 1/6 = 1/2, and 1/2 + 1/2 = 1 whole!",
+    branches: { correct: "node_09", incorrect: "node_09" },
+  },
+  {
+    id: "node_09",
+    phase: "learn",
+    tutorMessage: "Beautiful! 🏆 That proves 1/3 + 1/6 + 1/2 = 1. You've mastered adding and subtracting fractions — with same AND different denominators! Ready for the quiz?",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "node_quiz_intro" },
+  },
+  {
+    id: "node_quiz_intro",
+    phase: "learn",
+    tutorMessage: "Awesome work! 🌟 You've learned to add and subtract fractions with like and unlike denominators. Time for 5 questions — get 4 right to complete the lesson! 💪",
+    tutorEmotion: "excited",
+    expectsAction: "free_explore",
+    correctAnswer: null,
+    hint: null,
+    branches: { advance: "quiz_start" },
+  },
+];
+
+const quizQuestions_5_6 = [
+  {
+    id: "q1",
+    type: "multiple_choice",
+    question: "What is 1/4 + 2/4?",
+    choices: ["2/4", "3/4", "3/8"],
+    correctAnswer: "3/4",
+    showBars: false,
+  },
+  {
+    id: "q2",
+    type: "multiple_choice",
+    question: "What is 1/2 + 1/4?",
+    choices: ["2/6", "2/4", "3/4"],
+    correctAnswer: "3/4",
+    showBars: false,
+  },
+  {
+    id: "q3",
+    type: "fill_blank",
+    question: "3/6 − 1/6 = ?/6",
+    prompt: "Subtract the numerators. What number goes on top?",
+    correctAnswer: "2",
+  },
+  {
+    id: "q4",
+    type: "multiple_choice",
+    question: "What is 1/3 + 1/6?",
+    choices: ["2/9", "2/6", "3/6"],
+    correctAnswer: "3/6",
+    showBars: false,
+  },
+  {
+    id: "q5",
+    type: "true_false",
+    question: "True or False: To add fractions with different denominators, you need a common denominator first.",
+    correctAnswer: "true",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// Exports keyed by grade band
+// ═══════════════════════════════════════════════════════════════════
+
+export const lessonScriptByLevel = {
+  "1-2": lessonScript_1_2,
+  "3": lessonScript_3,
+  "4": lessonScript_4,
+  "5-6": lessonScript_5_6,
+};
+
+export const quizQuestionsByLevel = {
+  "1-2": quizQuestions_1_2,
+  "3": quizQuestions_3,
+  "4": quizQuestions_4,
+  "5-6": quizQuestions_5_6,
+};
+
+// Backwards-compatible default exports (4th grade = canonical)
+export const lessonScript = lessonScript_4;
+export const quizQuestions = quizQuestions_4;

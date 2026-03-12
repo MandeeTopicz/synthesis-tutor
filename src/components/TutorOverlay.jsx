@@ -29,7 +29,7 @@ export default function TutorOverlay({
     currentNode?.expectsAction !== "free_explore" &&
     currentNode?.expectsAction != null;
 
-  const displayText = isLoading ? "..." : currentMessage;
+  const displayText = isLoading && feedback !== "wrong" ? "..." : currentMessage;
 
   return (
     <div
@@ -60,16 +60,17 @@ export default function TutorOverlay({
             ✓ Correct!
           </div>
         )}
-        {feedback === "wrong" && !isLoading && (
+        {feedback === "wrong" && (
           <div
             style={{
               color: "#EF4444",
-              fontSize: 14,
-              fontWeight: 600,
-              marginBottom: 8,
+              fontSize: 18,
+              fontWeight: 700,
+              fontFamily: "'Nunito', sans-serif",
+              marginBottom: 12,
             }}
           >
-            ✗ Try again
+            ✗ Incorrect
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
@@ -135,9 +136,9 @@ export default function TutorOverlay({
           </div>
           <p
             key={displayText}
-            className={`tutor-message-fade ${isLoading ? "loading-dots" : ""}`}
+            className={`tutor-message-fade ${isLoading && feedback !== "wrong" ? "loading-dots" : ""}`}
             style={{
-              color: isLoading ? "#E8681A" : "white",
+              color: isLoading && feedback !== "wrong" ? "#E8681A" : "white",
               fontFamily: "'Inter', sans-serif",
               fontSize: 18,
               fontWeight: 500,
@@ -153,8 +154,8 @@ export default function TutorOverlay({
         </div>
       </div>
 
-      {/* Input area */}
-      {needsInput && (
+      {/* Input area — same spot for Next (free_explore), Check my answer (fill_whole), etc. */}
+      {(needsInput || currentNode?.expectsAction === "free_explore") && (
         <div
           style={{
             marginTop: 20,
@@ -165,7 +166,25 @@ export default function TutorOverlay({
             alignItems: "center",
           }}
         >
-          {currentNode?.expectsAction === "free_explore" && null}
+          {currentNode?.expectsAction === "free_explore" && (
+            <button
+              type="button"
+              onClick={() => onAnswer?.("next")}
+              style={{
+                padding: "12px 32px",
+                fontSize: 15,
+                fontWeight: 700,
+                background: "linear-gradient(135deg, #E8681A, #F97316)",
+                color: "white",
+                borderRadius: 12,
+                border: "none",
+                boxShadow: "0 4px 16px rgba(232,104,26,0.4)",
+                cursor: "pointer",
+              }}
+            >
+              Next →
+            </button>
+          )}
 
           {currentNode?.expectsAction === "answer_number" && (
             <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>

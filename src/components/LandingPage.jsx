@@ -37,22 +37,38 @@ const AVATARS = [
   },
 ];
 
-const DIFFICULTIES = [
+const GRADE_LEVELS = [
   {
-    id: "explorer",
-    icon: "🗺️",
-    title: "Explorer",
-    description: "Take your time, get hints",
-    selectedBorder: "#E8681A",
-    selectedBg: "rgba(232,104,26,0.1)",
+    id: "1-2",
+    grade: "1st–2nd grade",
+    title: "Introductory",
+    description: "Intro to fractions",
+    selectedBorder: "#F59E0B",
+    selectedBg: "rgba(245,158,11,0.1)",
   },
   {
-    id: "adventurer",
-    icon: "⚔️",
-    title: "Adventurer",
-    description: "A bit more challenge",
+    id: "3",
+    grade: "3rd grade",
+    title: "Fraction sense",
+    description: "Understanding and sense-making",
+    selectedBorder: "#10B981",
+    selectedBg: "rgba(16,185,129,0.1)",
+  },
+  {
+    id: "4",
+    grade: "4th grade",
+    title: "Equivalence & comparison",
+    description: "Equivalent fractions, comparing",
     selectedBorder: "#3B82F6",
     selectedBg: "rgba(59,130,246,0.1)",
+  },
+  {
+    id: "5-6",
+    grade: "5th–6th grade",
+    title: "Operations",
+    description: "Adding, subtracting & more",
+    selectedBorder: "#8B5CF6",
+    selectedBg: "rgba(139,92,246,0.1)",
   },
 ];
 
@@ -282,47 +298,58 @@ export default function LandingPage({ selectedAvatar, setSelectedAvatar, difficu
           </div>
         </div>
 
-        {/* Difficulty selection */}
+        {/* Grade level selection */}
         <div className="mb-10">
           <SectionLabel>Pick your level</SectionLabel>
-          <div className="flex gap-4">
-            {DIFFICULTIES.map((d) => (
-              <button
-                key={d.id}
-                type="button"
-                onClick={() => setDifficulty(d.id)}
-                className="flex-1 flex flex-col items-center text-center transition-all duration-200"
-                style={{
-                  padding: 16,
-                  borderRadius: 14,
-                  background: difficulty === d.id ? d.selectedBg : "rgba(255,255,255,0.04)",
-                  border: `2px solid ${difficulty === d.id ? d.selectedBorder : "rgba(255,255,255,0.08)"}`,
-                  cursor: "pointer",
-                }}
-              >
-                <span className="block mb-2" style={{ fontSize: 28 }}>{d.icon}</span>
-                <span
-                  className="font-bold block mb-1"
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {GRADE_LEVELS.map((level) => {
+              const selected = difficulty === level.id;
+              return (
+                <button
+                  key={level.id}
+                  type="button"
+                  onClick={() => setDifficulty(level.id)}
                   style={{
-                    fontFamily: "'Nunito', sans-serif",
-                    fontSize: 15,
-                    fontWeight: 800,
-                    color: "white",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    textAlign: "left",
+                    padding: 16,
+                    borderRadius: 14,
+                    background: selected ? level.selectedBg : "rgba(255,255,255,0.04)",
+                    border: `2px solid ${selected ? level.selectedBorder : "rgba(255,255,255,0.08)"}`,
+                    cursor: "pointer",
+                    transition: "all 200ms ease",
+                    transform: selected ? "translateY(-2px)" : "translateY(0)",
+                    boxShadow: selected ? `0 4px 16px ${level.selectedBorder}33` : "none",
                   }}
                 >
-                  {d.title}
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: 12,
-                    color: "rgba(255,255,255,0.4)",
-                  }}
-                >
-                  {d.description}
-                </span>
-              </button>
-            ))}
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: selected ? level.selectedBorder : "rgba(255,255,255,0.4)",
+                      letterSpacing: "0.5px",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {level.grade}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'Nunito', sans-serif",
+                      fontSize: 15,
+                      fontWeight: 800,
+                      color: "white",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {level.title}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
