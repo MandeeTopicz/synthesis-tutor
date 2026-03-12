@@ -38,8 +38,10 @@ export default function FractionWorkspace({
   const isProcessingDrop = useRef(false);
 
   const isMobile = workspaceWidth < 768;
+  // Tile size: large (48px) on full screen / wide viewport; shrink only when narrow or minimized
+  const useSmallTiles = workspaceWidth < 600;
   const wholeWidth = Math.min(workspaceWidth, MAX_BAR_WIDTH);
-  const pieceHeight = isMobile ? 32 : 48;
+  const pieceHeight = useSmallTiles ? 32 : 48;
 
   useEffect(() => {
     if (externalWidth) setWorkspaceWidth(externalWidth);
@@ -111,7 +113,10 @@ export default function FractionWorkspace({
       ref={containerRef}
       style={{
         position: "absolute",
-        inset: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: isMobile ? 0 : 32,
         zIndex: 1,
         display: "flex",
         flexDirection: "column",

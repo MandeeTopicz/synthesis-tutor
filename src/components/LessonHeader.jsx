@@ -10,7 +10,9 @@ export default function LessonHeader({ phase = "explore" }) {
         top: 0,
         left: 0,
         right: 0,
+        paddingTop: "max(env(safe-area-inset-top, 0px), 0px)",
         height: 56,
+        boxSizing: "content-box",
         zIndex: 200,
         background: "rgba(0,0,0,0.3)",
         backdropFilter: "blur(10px)",
@@ -18,7 +20,8 @@ export default function LessonHeader({ phase = "explore" }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 16px",
+        paddingLeft: 16,
+        paddingRight: 16,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

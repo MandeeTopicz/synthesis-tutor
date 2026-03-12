@@ -32,15 +32,17 @@ export default function TutorOverlay({
   const displayText = isLoading && feedback !== "wrong" ? "..." : currentMessage;
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isNarrowPhone = typeof window !== "undefined" && window.innerWidth < 400;
 
   return (
     <div
       style={{
         position: "absolute",
-        top: isMobile ? 56 : 80,
+        top: isMobile ? 72 : 80,
         left: "50%",
         transform: "translateX(-50%)",
         width: "min(600px, 90vw)",
+        maxWidth: isMobile ? "94vw" : undefined,
         zIndex: 100,
       }}
     >
@@ -75,19 +77,19 @@ export default function TutorOverlay({
             ✗ Incorrect
           </div>
         )}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isMobile ? 8 : 12 }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: isMobile ? 6 : 8,
               justifyContent: "center",
             }}
           >
             <div
               style={{
-                width: 40,
-                height: 40,
+                width: isMobile ? 32 : 40,
+                height: isMobile ? 32 : 40,
                 borderRadius: "50%",
                 background: "linear-gradient(135deg, #1E3A5F, #2D5A8E)",
                 border: `2px solid ${style.ring}`,
@@ -98,7 +100,7 @@ export default function TutorOverlay({
                 transform: style.tilt ? `rotate(${style.tilt}deg)` : undefined,
               }}
             >
-            <svg viewBox="0 0 64 64" width={28} height={28} style={{ overflow: "visible" }}>
+            <svg viewBox="0 0 64 64" width={isMobile ? 22 : 28} height={isMobile ? 22 : 28} style={{ overflow: "visible" }}>
               <circle cx="32" cy="32" r="28" fill="#1E3A5F" />
               {style.eyes === "normal" && (
                 <>
@@ -128,7 +130,7 @@ export default function TutorOverlay({
             <span
               style={{
                 fontFamily: "'Nunito', sans-serif",
-                fontSize: 14,
+                fontSize: isMobile ? 12 : 14,
                 fontWeight: 700,
                 color: "#E8681A",
               }}
@@ -142,13 +144,15 @@ export default function TutorOverlay({
             style={{
               color: isLoading && feedback !== "wrong" ? "#E8681A" : "white",
               fontFamily: "'Inter', sans-serif",
-              fontSize: isMobile ? 14 : 18,
+              fontSize: isMobile ? 15 : 18,
               fontWeight: 500,
-              lineHeight: isMobile ? 1.4 : 1.7,
+              lineHeight: isMobile ? 1.5 : 1.7,
               textAlign: "center",
               textShadow: "0 2px 12px rgba(0,0,0,0.8)",
               maxWidth: 560,
               margin: "0 auto",
+              paddingLeft: isNarrowPhone ? 8 : 0,
+              paddingRight: isNarrowPhone ? 8 : 0,
             }}
           >
             {displayText}
