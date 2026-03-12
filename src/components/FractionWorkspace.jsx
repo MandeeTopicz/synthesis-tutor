@@ -37,8 +37,9 @@ export default function FractionWorkspace({
   const dragRef = useRef(null);
   const isProcessingDrop = useRef(false);
 
+  const isMobile = workspaceWidth < 768;
   const wholeWidth = Math.min(workspaceWidth, MAX_BAR_WIDTH);
-  const pieceHeight = 48;
+  const pieceHeight = isMobile ? 32 : 48;
 
   useEffect(() => {
     if (externalWidth) setWorkspaceWidth(externalWidth);
@@ -94,7 +95,7 @@ export default function FractionWorkspace({
     if (inZone) {
       const fraction = dragRef.current.fraction;
       const pieceWidth = wholeWidth / DENOMINATORS[fraction];
-      const pieceHeightVal = 48;
+      const pieceHeightVal = pieceHeight;
       const offsetX = info.offsetX ?? pieceWidth / 2;
       const offsetY = info.offsetY ?? pieceHeightVal / 2;
       const x = localX - offsetX;
@@ -117,15 +118,15 @@ export default function FractionWorkspace({
         minWidth: 0,
       }}
     >
-      {/* Reference bar — centered, below overlay area to avoid grey text showing through */}
+      {/* Reference bar — centered, below overlay area */}
       <div
         style={{
-          flex: "0 0 30%",
+          flex: "0 0 auto",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          padding: "120px 24px 24px",
+          justifyContent: "flex-end",
+          padding: isMobile ? "80px 12px 8px" : "120px 24px 24px",
         }}
       >
         <div
@@ -152,11 +153,11 @@ export default function FractionWorkspace({
           flex: 1,
           position: "relative",
           touchAction: "none",
-          minHeight: 120,
+          minHeight: isMobile ? 60 : 120,
           overflow: "hidden",
         }}
       >
-        {/* One-whole reference line (visual only; answer can be placed anywhere in drop zone) */}
+        {/* One-whole reference line */}
         <div
           style={{
             position: "absolute",
@@ -235,7 +236,7 @@ export default function FractionWorkspace({
       <div
         style={{
           flexShrink: 0,
-          padding: "8px 24px 0",
+          padding: isMobile ? "4px 12px 0" : "8px 24px 0",
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-start",
@@ -263,11 +264,11 @@ export default function FractionWorkspace({
       <div
         style={{
           flexShrink: 0,
-          padding: "12px 24px 16px",
+          padding: isMobile ? "6px 8px 10px" : "12px 24px 16px",
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
-          gap: 12,
+          gap: isMobile ? 6 : 12,
           alignItems: "flex-end",
         }}
       >
@@ -275,7 +276,8 @@ export default function FractionWorkspace({
           const w = getPieceWidth(fraction);
           const isHighlight = highlightPiece === fraction;
           const labels = TRAY_LABELS[fraction] ?? { notation: fraction, word: fraction };
-          const slotWidth = fraction === "whole" ? wholeWidth + 32 : wholeWidth / 2;
+          const slotPad = isMobile ? 4 : 8;
+          const slotWidth = Math.max(w + slotPad * 2, isMobile ? 48 : 80);
           return (
             <div
               key={fraction}
@@ -283,11 +285,11 @@ export default function FractionWorkspace({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 4,
+                gap: isMobile ? 2 : 4,
                 width: slotWidth,
                 outline: isHighlight ? "3px solid #E8681A" : "none",
-                borderRadius: 10,
-                padding: 8,
+                borderRadius: isMobile ? 6 : 10,
+                padding: isMobile ? 4 : 8,
                 background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.08)",
               }}
@@ -307,10 +309,10 @@ export default function FractionWorkspace({
               <div
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 11,
+                  fontSize: isMobile ? 9 : 11,
                   color: "rgba(255,255,255,0.35)",
                   textAlign: "center",
-                  marginTop: 4,
+                  marginTop: isMobile ? 1 : 4,
                 }}
               >
                 {labels.word}

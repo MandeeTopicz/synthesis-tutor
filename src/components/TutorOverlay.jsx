@@ -31,11 +31,13 @@ export default function TutorOverlay({
 
   const displayText = isLoading && feedback !== "wrong" ? "..." : currentMessage;
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <div
       style={{
         position: "absolute",
-        top: 80,
+        top: isMobile ? 56 : 80,
         left: "50%",
         transform: "translateX(-50%)",
         width: "min(600px, 90vw)",
@@ -140,9 +142,9 @@ export default function TutorOverlay({
             style={{
               color: isLoading && feedback !== "wrong" ? "#E8681A" : "white",
               fontFamily: "'Inter', sans-serif",
-              fontSize: 18,
+              fontSize: isMobile ? 14 : 18,
               fontWeight: 500,
-              lineHeight: 1.7,
+              lineHeight: isMobile ? 1.4 : 1.7,
               textAlign: "center",
               textShadow: "0 2px 12px rgba(0,0,0,0.8)",
               maxWidth: 560,
@@ -158,10 +160,10 @@ export default function TutorOverlay({
       {(needsInput || currentNode?.expectsAction === "free_explore") && (
         <div
           style={{
-            marginTop: 20,
+            marginTop: isMobile ? 10 : 20,
             display: "flex",
             flexWrap: "wrap",
-            gap: 12,
+            gap: isMobile ? 8 : 12,
             justifyContent: "center",
             alignItems: "center",
           }}
@@ -171,8 +173,8 @@ export default function TutorOverlay({
               type="button"
               onClick={() => onAnswer?.("next")}
               style={{
-                padding: "12px 32px",
-                fontSize: 15,
+                padding: isMobile ? "10px 24px" : "12px 32px",
+                fontSize: isMobile ? 13 : 15,
                 fontWeight: 700,
                 background: "linear-gradient(135deg, #E8681A, #F97316)",
                 color: "white",
@@ -250,10 +252,10 @@ export default function TutorOverlay({
                     onMouseEnter={() => setHoverChoice(choice)}
                     onMouseLeave={() => setHoverChoice(null)}
                     style={{
-                      padding: "12px 24px",
-                      fontSize: 15,
+                      padding: isMobile ? "8px 16px" : "12px 24px",
+                      fontSize: isMobile ? 13 : 15,
                       fontWeight: 600,
-                      minWidth: 120,
+                      minWidth: isMobile ? 80 : 120,
                       background: isHover ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
                       border: "1px solid rgba(255,255,255,0.15)",
                       color: "white",
@@ -275,8 +277,8 @@ export default function TutorOverlay({
               type="button"
               onClick={() => onAnswer?.("check_fill")}
               style={{
-                padding: "12px 32px",
-                fontSize: 15,
+                padding: isMobile ? "10px 24px" : "12px 32px",
+                fontSize: isMobile ? 13 : 15,
                 fontWeight: 700,
                 background: "linear-gradient(135deg, #E8681A, #F97316)",
                 color: "white",
