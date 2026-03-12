@@ -2,8 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Full-bleed background so blue extends edge-to-edge on all devices */
-html,
+/* Full-bleed background: extends behind browser chrome and into all safe areas (notch, home indicator, sides) */
+:root {
+  --app-bg: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%);
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Fixed layer that extends past viewport into safe areas so blue shows behind browser UI */
+html::before {
+  content: "";
+  position: fixed;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  left: calc(-1 * env(safe-area-inset-left, 0px));
+  right: calc(-1 * env(safe-area-inset-right, 0px));
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  min-width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--app-bg);
+  background-attachment: scroll;
+  z-index: -2;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -11,7 +38,8 @@ body {
   min-height: 100dvh;
   min-width: 100%;
   width: 100%;
-  background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%);
+  overflow-x: hidden;
+  background: var(--app-bg);
   background-attachment: fixed;
 }
 

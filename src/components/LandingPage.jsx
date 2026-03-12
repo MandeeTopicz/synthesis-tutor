@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 const AVATARS = [
   {
     id: "Sunny",
@@ -101,11 +103,35 @@ function SectionLabel({ children }) {
 }
 
 export default function LandingPage({ selectedAvatar, setSelectedAvatar, difficulty, setDifficulty, onStart }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-6"
+      className="min-h-screen flex items-center justify-center"
       style={{
-        background: "linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%)",
+        minHeight: "100dvh",
+        height: isMobile ? "100dvh" : undefined,
+        minWidth: "100%",
+        width: "100%",
+        overflow: "hidden",
+        padding: isMobile ? 12 : 24,
+        boxSizing: "border-box",
+        background: "var(--app-bg, linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%))",
       }}
     >
       <div
@@ -113,9 +139,12 @@ export default function LandingPage({ selectedAvatar, setSelectedAvatar, difficu
         style={{
           background: "rgba(255,255,255,0.04)",
           backdropFilter: "blur(20px)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          padding: 48,
+          border: isMobile ? "none" : "1px solid rgba(255,255,255,0.08)",
+          padding: isMobile ? 24 : 48,
           boxShadow: "0 32px 80px rgba(0,0,0,0.5)",
+          maxHeight: isMobile ? "calc(100dvh - 24px)" : undefined,
+          overflowY: isMobile ? "auto" : undefined,
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {/* Header / Logo */}
