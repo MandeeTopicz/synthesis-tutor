@@ -113,10 +113,11 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
         position: "fixed",
         inset: 0,
         minWidth: "100%",
-        minHeight: "100vh",
         minHeight: "100dvh",
         background: "linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%)",
-        overflow: "hidden",
+        overflow: "visible",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <div

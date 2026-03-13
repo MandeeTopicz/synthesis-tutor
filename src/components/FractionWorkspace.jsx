@@ -21,6 +21,7 @@ const TRAY_LABELS = {
 };
 const MAX_BAR_WIDTH = 600;
 const TICK_FRACTIONS = [1 / 2, 1 / 3, 1 / 4, 1 / 6, 1 / 8];
+const GUIDE_Y = 24;
 
 export default function FractionWorkspace({
   placedPieces,
@@ -112,63 +113,34 @@ export default function FractionWorkspace({
     <div
       ref={containerRef}
       style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: isMobile ? 0 : 32,
+        paddingTop: 0,
+        boxSizing: "border-box",
         zIndex: 1,
         display: "flex",
         flexDirection: "column",
         minWidth: 0,
+        flex: 1,
       }}
     >
-      {/* Reference bar — centered, below overlay area */}
-      <div
-        style={{
-          flex: "0 0 auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          padding: isMobile ? "80px 12px 8px" : "120px 24px 24px",
-        }}
-      >
-        <div
-          style={{
-            width: wholeWidth,
-            height: pieceHeight,
-          }}
-        >
-          <FractionBar
-            fraction="whole"
-            width={wholeWidth}
-            height={pieceHeight}
-            draggable={false}
-            inTray={false}
-            isPlaced={false}
-          />
-        </div>
-      </div>
-
-      {/* Drop zone — fills middle, transparent */}
+      {/* Drop zone — marginTop clears nav + TutorOverlay; contains guide line, reference bar, placed pieces */}
       <div
         ref={dropZoneRef}
         style={{
           flex: 1,
           position: "relative",
+          marginTop: 72,
           touchAction: "none",
-          minHeight: isMobile ? 60 : 120,
-          overflow: "hidden",
+          minHeight: 200,
+          overflow: "visible",
         }}
       >
-        {/* One-whole reference line */}
+        {/* One-whole alignment guide line at GUIDE_Y */}
         <div
           style={{
             position: "absolute",
-            top: "50%",
+            top: GUIDE_Y + "px",
             left: "50%",
-            transform: "translate(-50%, -50%)",
+            transform: "translateX(-50%)",
             width: wholeWidth,
             height: 2,
             background: "rgba(255,255,255,0.08)",
@@ -203,6 +175,29 @@ export default function FractionWorkspace({
               }}
             />
           ))}
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: GUIDE_Y + 4 + "px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: wholeWidth,
+            height: pieceHeight,
+            pointerEvents: "none",
+            zIndex: 0,
+            opacity: 0.35,
+          }}
+        >
+          <FractionBar
+            fraction="whole"
+            width={wholeWidth}
+            height={pieceHeight}
+            draggable={false}
+            inTray={false}
+            isPlaced={false}
+          />
         </div>
 
         {localPlaced.map((p) => (

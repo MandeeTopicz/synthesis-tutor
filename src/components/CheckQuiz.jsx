@@ -144,7 +144,7 @@ export default function CheckQuiz({ onComplete, difficulty = "4" }) {
   if (finished) {
     const displayScore = Math.min(finalScore ?? score, TOTAL_QUESTIONS);
     const starCount = displayScore >= 4 ? 3 : displayScore === 3 ? 2 : 1;
-    console.log("final score for stars:", finalScore ?? score);
+
     return (
       <div
         style={{
