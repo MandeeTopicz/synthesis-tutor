@@ -23,6 +23,7 @@ export default function FractionBar({
   y = 0,
   id,
   style = {},
+  animationCue,
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
@@ -99,33 +100,44 @@ export default function FractionBar({
     ? `drop-shadow(0 4px 8px ${colors.bg}44)`
     : "none";
 
+  console.log("FRACTIONBAR →", { animationCue, fraction });
+
   return (
-    <div
-      ref={elRef}
-      role="button"
-      tabIndex={0}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={(e) => {
-        if (e.buttons === 0) handlePointerUp(e);
-      }}
-      onClick={onSplit && !draggable ? onSplit : undefined}
-      style={{
-        position: (inTray && !isDragging) ? "relative" : isDragging && inTray ? "fixed" : "absolute",
-        left: 0,
-        top: 0,
-        transform: transform ? `${transform} scale(${scale})` : `scale(${scale})`,
-        transition: isDragging ? "none" : "transform 150ms ease, box-shadow 150ms ease",
-        boxShadow: isDragging ? "0 8px 16px rgba(0,0,0,0.3)" : pieceBoxShadow,
-        filter: pieceFilter,
-        zIndex: isDragging ? 9999 : undefined,
-        cursor: draggable ? "grab" : "default",
-        touchAction: "none",
-        borderRadius: 6,
-        ...style,
-      }}
-    >
+    <>
+      <style>{`
+        @keyframes miaPulse {
+          0%   { box-shadow: 0 0 0 0px rgba(255, 200, 0, 0.8); }
+          50%  { box-shadow: 0 0 0 12px rgba(255, 200, 0, 0); }
+          100% { box-shadow: 0 0 0 0px rgba(255, 200, 0, 0); }
+        }
+      `}</style>
+      <div
+        ref={elRef}
+        role="button"
+        tabIndex={0}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={(e) => {
+          if (e.buttons === 0) handlePointerUp(e);
+        }}
+        onClick={onSplit && !draggable ? onSplit : undefined}
+        style={{
+          position: (inTray && !isDragging) ? "relative" : isDragging && inTray ? "fixed" : "absolute",
+          left: 0,
+          top: 0,
+          transform: transform ? `${transform} scale(${scale})` : `scale(${scale})`,
+          transition: isDragging ? "none" : "transform 150ms ease, box-shadow 150ms ease",
+          boxShadow: isDragging ? "0 8px 16px rgba(0,0,0,0.3)" : pieceBoxShadow,
+          filter: pieceFilter,
+          zIndex: isDragging ? 9999 : undefined,
+          cursor: draggable ? "grab" : "default",
+          touchAction: "none",
+          borderRadius: 6,
+          animation: animationCue ? "miaPulse 0.6s ease-out 2" : undefined,
+          ...style,
+        }}
+      >
       <svg
         width={width}
         height={height}
@@ -155,6 +167,7 @@ export default function FractionBar({
         </text>
       </svg>
     </div>
+    </>
   );
 }
 

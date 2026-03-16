@@ -12,8 +12,11 @@ export default function TutorOverlay({
   tutorEmotion = "happy",
   currentNode,
   onAnswer,
+  onReplay,
+  taskHint,
   isLoading = false,
   feedback = null,
+  learnerTier,
 }) {
   const [hoverChoice, setHoverChoice] = useState(null);
   const [numberInput, setNumberInput] = useState("");
@@ -137,28 +140,70 @@ export default function TutorOverlay({
             >
               Mia
             </span>
+            {onReplay && (
+              <button
+                type="button"
+                onClick={onReplay}
+                aria-label="Replay question"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "50%",
+                  width: isMobile ? 28 : 32,
+                  height: isMobile ? 28 : 32,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  padding: 0,
+                  flexShrink: 0,
+                }}
+              >
+                <svg width={isMobile ? 14 : 16} height={isMobile ? 14 : 16} viewBox="0 0 24 24" fill="none">
+                  <path d="M8 5v14l11-7z" fill="rgba(255,255,255,0.7)" />
+                </svg>
+              </button>
+            )}
           </div>
-          <p
-            key={displayText}
-            className={`tutor-message-fade ${isLoading && feedback !== "wrong" ? "loading-dots" : ""}`}
-            style={{
-              color: isLoading && feedback !== "wrong" ? "#E8681A" : "white",
-              fontFamily: "'Inter', sans-serif",
-              fontSize: isMobile ? 15 : 18,
-              fontWeight: 500,
-              lineHeight: isMobile ? 1.5 : 1.7,
-              textAlign: "center",
-              textShadow: "0 2px 12px rgba(0,0,0,0.8)",
-              maxWidth: 560,
-              margin: "0 auto",
-              paddingLeft: isNarrowPhone ? 8 : 0,
-              paddingRight: isNarrowPhone ? 8 : 0,
-            }}
-          >
-            {displayText}
-          </p>
+          {learnerTier !== "early" && (
+            <p
+              key={displayText}
+              className={`tutor-message-fade ${isLoading && feedback !== "wrong" ? "loading-dots" : ""}`}
+              style={{
+                color: isLoading && feedback !== "wrong" ? "#E8681A" : "white",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? 15 : 18,
+                fontWeight: 500,
+                lineHeight: isMobile ? 1.5 : 1.7,
+                textAlign: "center",
+                textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                maxWidth: 560,
+                margin: "0 auto",
+                paddingLeft: isNarrowPhone ? 8 : 0,
+                paddingRight: isNarrowPhone ? 8 : 0,
+              }}
+            >
+              {displayText}
+            </p>
+          )}
         </div>
       </div>
+
+      {taskHint && (
+        <p
+          style={{
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: isMobile ? 16 : 20,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.7)",
+            textAlign: "center",
+            margin: isMobile ? "8px auto 0" : "12px auto 0",
+            maxWidth: 560,
+          }}
+        >
+          {taskHint}
+        </p>
+      )}
 
       {/* Input area — same spot for Next (free_explore), Check my answer (fill_whole), etc. */}
       {(needsInput || currentNode?.expectsAction === "free_explore") && (

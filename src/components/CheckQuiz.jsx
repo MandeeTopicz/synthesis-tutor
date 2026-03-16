@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { quizQuestionsByLevel } from "../data/lessonScript.js";
+import { speakWithCartesia } from "../lib/cartesiaTTS.js";
 import FractionBar from "./FractionBar.jsx";
 
 const BAR_WIDTH = 120;
@@ -37,7 +38,7 @@ const choiceBtnBase = {
   transition: "all 200ms ease",
 };
 
-export default function CheckQuiz({ onComplete, difficulty = "4" }) {
+export default function CheckQuiz({ onComplete, difficulty = "4", learnerTier }) {
   const quizQuestions = quizQuestionsByLevel[difficulty] || quizQuestionsByLevel["4"];
   const TOTAL_QUESTIONS = quizQuestions.length;
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,6 +57,18 @@ export default function CheckQuiz({ onComplete, difficulty = "4" }) {
 
   const q = quizQuestions[currentIndex];
   const isLast = currentIndex === quizQuestions.length - 1;
+
+  const spokenQuestionRef = useRef(null);
+
+  useEffect(() => {
+    if (learnerTier !== "early") return;
+    if (!q?.question) return;
+    if (spokenQuestionRef.current === q.id) return;
+
+    spokenQuestionRef.current = q.id;
+
+    speakWithCartesia(q.question);
+  }, [q?.id, learnerTier]);
 
   useEffect(() => {
     if (lastCorrect) {
@@ -301,44 +314,18 @@ export default function CheckQuiz({ onComplete, difficulty = "4" }) {
 
         {q.type === "multiple_choice" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
-            {q.choices.map((choice) => {
-              const bars = q.showBars ? choiceToBars(choice) : [];
-              const FRAC_DENOMS = { whole: 1, half: 2, third: 3, fourth: 4, sixth: 6, eighth: 8 };
-              const denom = bars[0] ? (FRAC_DENOMS[bars[0].fraction] || 4) : 4;
-              const pieceW = bars[0] ? BAR_WIDTH / denom : 0;
-              return (
-                <button
-                  key={choice}
-                  type="button"
-                  onClick={() => !answerRevealed && setSelectedChoice(choice)}
-                  onMouseEnter={() => setHoverChoice(choice)}
-                  onMouseLeave={() => setHoverChoice(null)}
-                  style={{
-                    ...getChoiceStyle(choice),
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  {q.showBars && bars[0] && (
-                    <div style={{ display: "flex", width: BAR_WIDTH, height: BAR_HEIGHT, borderRadius: 8, overflow: "hidden" }}>
-                      {Array.from({ length: bars[0].count }).map((_, i) => (
-                        <FractionBar
-                          key={i}
-                          fraction={bars[0].fraction}
-                          width={pieceW}
-                          height={BAR_HEIGHT}
-                          draggable={false}
-                          inTray={false}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  <span>{choice}</span>
-                </button>
-              );
-            })}
+            {q.choices.map((choice) => (
+              <button
+                key={choice}
+                type="button"
+                onClick={() => !answerRevealed && setSelectedChoice(choice)}
+                onMouseEnter={() => setHoverChoice(choice)}
+                onMouseLeave={() => setHoverChoice(null)}
+                style={getChoiceStyle(choice)}
+              >
+                {choice}
+              </button>
+            ))}
           </div>
         )}
 
