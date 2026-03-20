@@ -100,7 +100,6 @@ export default function FractionBar({
     ? `drop-shadow(0 4px 8px ${colors.bg}44)`
     : "none";
 
-  console.log("FRACTIONBAR →", { animationCue, fraction });
 
   return (
     <>
