@@ -189,22 +189,6 @@ export default function TutorOverlay({
         </div>
       </div>
 
-      {taskHint && (
-        <p
-          style={{
-            fontFamily: "'Nunito', sans-serif",
-            fontSize: isMobile ? 16 : 20,
-            fontWeight: 700,
-            color: "rgba(255,255,255,0.7)",
-            textAlign: "center",
-            margin: isMobile ? "8px auto 0" : "12px auto 0",
-            maxWidth: 560,
-          }}
-        >
-          {taskHint}
-        </p>
-      )}
-
       {/* Input area — same spot for Next (free_explore), Check my answer (fill_whole), etc. */}
       {(needsInput || currentNode?.expectsAction === "free_explore") && (
         <div
@@ -341,6 +325,22 @@ export default function TutorOverlay({
             </button>
           )}
         </div>
+      )}
+
+      {taskHint && (
+        <p
+          style={{
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: isMobile ? 20 : 26,
+            fontWeight: 800,
+            color: "rgba(255,255,255,0.95)",
+            textAlign: "center",
+            margin: isMobile ? "12px auto 0" : "16px auto 0",
+            maxWidth: 560,
+          }}
+        >
+          {taskHint}
+        </p>
       )}
     </div>
   );

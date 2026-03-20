@@ -176,6 +176,7 @@ export default function LessonEngine({ selectedAvatar, difficulty, onPhaseChange
     }
     if (expectsAction === "answer_number") return currentNode.hint || null;
     if (expectsAction === "answer_choice") return currentNode.hint || null;
+    if (expectsAction === "free_explore" && !currentNode.autoAdvance) return "Drag the pieces around and explore!";
     return null;
   })();
 
